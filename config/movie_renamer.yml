@@ -1,0 +1,6 @@
+TMDB_API:
+MOVIE_TEMPLATE: "\
+{{root_path}}/Movies/{{name}} ({{year}}) [{{resolution}}]\
+/{{name}} ({{year}}) [{{resolution}}] {{}}
+"
+TV_TEMPLATE:
