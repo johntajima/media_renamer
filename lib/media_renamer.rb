@@ -5,9 +5,11 @@ require 'mediainfo'
 require 'tmdb-api'
 require 'liquid'
 require 'logger'
+require 'active_support'
 require "media_renamer/version"
 require "media_renamer/templates"
 require "media_renamer/renamer"
+require "media_renamer/file_handler"
 require "media_renamer/agents/tmdb_agent"
 
 

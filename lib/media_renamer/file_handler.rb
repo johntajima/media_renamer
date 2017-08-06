@@ -1,15 +1,16 @@
 module MediaRenamer
   class FileHandler
 
-    attr_reader :file?, :dir?, :filename, :ext, :path, :title, :type
-
     VIDEO_EXT = %w| .avi .mp4 .mkv .mov .divx|
     MUSIC_EXT = %w| .ogg .mp3 .aac .flac |
     SUB_EXT   = %w| .sub .srt .idx |
     IMAGE_EXT = %w| .jpeg .jpg .bmp .png .tiff|
 
+    attr_reader :file
+
     def initialize(file)
       @file = File.expand_path(file)
+      raise InvalidFileError, "File or path '#{file}' does not exist" unless File.exist?(@file)
     end
 
     def file?
@@ -17,7 +18,7 @@ module MediaRenamer
     end
 
     def dir?
-      File.directory(@file)
+      File.directory?(@file)
     end
 
     def path
@@ -47,7 +48,14 @@ module MediaRenamer
       end
     end
 
+    def mv(name, path = nil)
+      # rename file if path is nil
+      # move file to new path if 
+    end
 
+    def delete!
+      # delete file
+    end
 
   end
 end
