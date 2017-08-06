@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift File.dirname(__FILE__)
+
+require 'rubygems'
+require 'thor'
+require_relative '../lib/media_renamer'
+
+class MediaRenamerCLI < Thor
+
+  desc "rename <file|path>", "Renames media files found in path or given file"
+  method_option :force, 
+                aliases: '-f', 
+                default: false,
+                type: :boolean,
+                desc: "Force renaming, without prompting for confirmation"
+  method_option :preview, 
+                aliases: '-p', 
+                default: false,
+                type: :boolean,
+                desc: "Only previews the changes that would be made, does not make changes."
+  method_option :target_dir, 
+                aliases: '-d', 
+                desc: "Specify target root directory to save renamed files in"
+  # default action
+  # rename <path|file>
+  # renames all files in a given path, or a file
+
+  def rename(path_or_file)
+    options = {}
+    renamer = MediaRenamer::Renamer.new(path_or_file, options)
+    renamer.process!
+  end
+end
+
+
+MediaRenamerCLI.start
