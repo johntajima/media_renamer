@@ -31,6 +31,28 @@ class MediaRenamerCLI < Thor
     renamer = MediaRenamer::Renamer.new(path_or_file, options)
     renamer.process!
   end
+
+  # go through all files and print out media info about each file
+
+  desc "Scan <file|path>", "Renames media files found in path or given file"
+  def scan(path)
+    options = {}
+    files = Dir.glob(File.expand_path(File.join(path, "**/*")))
+    audio_codecs = []
+    video_codecs = []
+    files.each do |f|
+      m = MediaRenamer::Mediafile.new(f)
+      next unless m.video?
+
+      puts "."
+      video_codecs << m.to_hash.fetch(:video_codec)
+      video_codecs.uniq!
+      audio_codecs << m.to_hash.fetch(:audio_codec)
+      audio_codecs.uniq!
+      p audio_codecs
+      p video_codecs
+    end
+  end
 end
 
 

@@ -59,12 +59,14 @@ module MediaRenamer
     end
 
     def to_hash
-      return {} unless exists? && mediainfo.valid?
-      
+      return {} unless exists? && video? && mediainfo.valid?
+
       {
         title: "",
-        raw_title: mediainfo.format_tags.fetch(:title, @filename),
+        raw_title: raw_title,
         filename: @filename,
+        duration: mediainfo.duration,
+        filesize: mediainfo.size,
         width: mediainfo.width,
         height: mediainfo.height,
         resolution: mediainfo.resolution,
@@ -76,6 +78,11 @@ module MediaRenamer
 
 
     private
+
+    def raw_title
+      return unless mediainfo.format_tags
+      mediainfo.format_tags.fetch(:title, @filename)
+    end
 
     def mediainfo
       @mediainfo ||= FFMPEG::Movie.new(@file)

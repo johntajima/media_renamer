@@ -73,9 +73,14 @@ class MediaRenamer::MediafileTest < ActiveSupport::TestCase
 
   # mediainfo
 
-  test "#mediainfo " do
+  test "#to_hash returns hash of media info for valid file" do
     @media = MediaRenamer::Mediafile.new(load_file("RARBG.mp4"))
     p @media.to_hash
+  end
+
+  test "#to_hash returns empty hash if file is not valid or a movie" do
+    @media = MediaRenamer::Mediafile.new(load_file("sample_files.txt"))
+    assert_equal Hash.new, @media.to_hash
   end
 
 end
