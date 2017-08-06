@@ -36,7 +36,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "mocha"
   spec.add_dependency "activesupport", "= 5.0.1"
 
-  spec.add_dependency "mediainfo"
+  spec.add_dependency "streamio-ffmpeg"
+  
   spec.add_dependency "tmdb-api"
   spec.add_dependency "liquid"
   spec.add_dependency "thor"
