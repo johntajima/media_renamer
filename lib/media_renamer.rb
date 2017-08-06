@@ -8,6 +8,7 @@ require 'logger'
 require "media_renamer/version"
 require "media_renamer/templates"
 require "media_renamer/renamer"
+require "media_renamer/agents/tmdb_agent"
 
 
 module MediaRenamer
@@ -16,7 +17,7 @@ module MediaRenamer
   DEFAULT_CONFIG = File.join(File.dirname(__FILE__), "../config/media_renamer.yml")
   SETTINGS ||= begin
     default_config = YAML.load(File.open(DEFAULT_CONFIG).read)
-    custom_config = if File.exists?(File.expand_path(USER_CONFIG))
+    custom_config = if File.exist?(File.expand_path(USER_CONFIG))
       YAML.load(File.open(File.expand_path(USER_CONFIG)).read)
     else
       {}
@@ -36,5 +37,7 @@ module MediaRenamer
     end
   end
 
+
+  class InvalidFileError < StandardError; end
 
 end
