@@ -10,6 +10,7 @@ require "media_renamer/templates"
 require "media_renamer/renamer"
 require "media_renamer/mediafile"
 require "media_renamer/utils"
+require "media_renamer/title_processor"
 require "media_renamer/agents/tmdb_agent"
 
 

@@ -58,8 +58,6 @@ module MediaRenamer
       channels ? "#{text} #{channels}ch" : text
     end
 
-
-
   end
 
 end
