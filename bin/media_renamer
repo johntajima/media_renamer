@@ -49,6 +49,7 @@ class MediaRenamerCLI < Thor
       video_codecs.uniq!
       audio_codecs << m.to_hash.fetch(:audio_codec)
       audio_codecs.uniq!
+      p m.to_hash.fetch(:format), m.to_hash.fetch(:width)
       p audio_codecs
       p video_codecs
     end

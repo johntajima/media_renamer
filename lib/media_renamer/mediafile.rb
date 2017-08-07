@@ -70,9 +70,9 @@ module MediaRenamer
         width: mediainfo.width,
         height: mediainfo.height,
         resolution: mediainfo.resolution,
-        video_codec: mediainfo.video_codec,
-        audio_codec: mediainfo.audio_codec,
-        audio_channels: mediainfo.audio_channels
+        format: MediaRenamer::Utils.video_format(mediainfo.width, mediainfo.height),        
+        video_codec: MediaRenamer::Utils.video_codec(mediainfo.video_codec),
+        audio_codec: MediaRenamer::Utils.audio_codec(mediainfo.audio_codec, mediainfo.audio_channels)
       }
     end
 
