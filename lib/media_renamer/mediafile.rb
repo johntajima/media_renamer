@@ -62,15 +62,14 @@ module MediaRenamer
       return {} unless exists? && video? && mediainfo.valid?
 
       {
-        title: "",
-        raw_title: raw_title,
+        title: MediaRenamer::Utils.title_from_file(@filename),
+        year: MediaRenamer::Utils.year_from_file(@filename),
         filename: @filename,
         duration: mediainfo.duration,
         filesize: mediainfo.size,
         width: mediainfo.width,
         height: mediainfo.height,
-        resolution: mediainfo.resolution,
-        format: MediaRenamer::Utils.video_format(mediainfo.width, mediainfo.height),        
+        video_format: MediaRenamer::Utils.video_format(mediainfo.width, mediainfo.height),        
         video_codec: MediaRenamer::Utils.video_codec(mediainfo.video_codec),
         audio_codec: MediaRenamer::Utils.audio_codec(mediainfo.audio_codec, mediainfo.audio_channels)
       }
