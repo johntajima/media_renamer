@@ -43,15 +43,11 @@ class MediaRenamerCLI < Thor
     files.each do |f|
       m = MediaRenamer::Mediafile.new(f)
       next unless m.video?
+      next if m.title.blank?
 
-      puts "."
-      video_codecs << m.to_hash.fetch(:video_codec)
-      video_codecs.uniq!
-      audio_codecs << m.to_hash.fetch(:audio_codec)
-      audio_codecs.uniq!
-      p m.to_hash.fetch(:format), m.to_hash.fetch(:width)
-      p audio_codecs
-      p video_codecs
+      movies = MediaRenamer::Agents::TmdbAgent.search(m.title, year: m.year)
+      p movies.first
+
     end
   end
 end

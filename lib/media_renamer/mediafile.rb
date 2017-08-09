@@ -10,7 +10,11 @@ module MediaRenamer
     SUB_EXT   = %w| .sub .srt .idx |
     IMAGE_EXT = %w| .jpeg .jpg .bmp .png .tiff|
 
+    MIN_MOVIE_TIME = 60 * 60 # 1hr
+    MIN_TV_TIME    = 20 * 60 # 20m
+
     attr_reader :filename, :path, :ext
+
 
     def initialize(filename)
       @file     = File.expand_path(filename)
@@ -58,21 +62,53 @@ module MediaRenamer
       @exists
     end
 
+    def title
+      @title ||= MediaRenamer::Utils.title_from_file(filename)
+    end
+
+    def year
+      @year ||= MediaRenamer::Utils.year_from_file(filename)
+    end
+
+    def video_format
+      @video_format ||= MediaRenamer::Utils.video_format(mediainfo.width, mediainfo.height)
+    end
+
+    def video_codec
+      @video_codec ||= MediaRenamer::Utils.video_codec(mediainfo.video_codec)
+    end
+
+    def audio_codedc
+      @audio_codec ||= MediaRenamer::Utils.audio_codec(mediainfo.audio_codec, mediainfo.audio_channels)
+    end
+
+    def duration
+      mediainfo.duration
+    end
+
+    def filesize
+      mediainfo.size
+    end
+
     def to_hash
       return {} unless exists? && video? && mediainfo.valid?
 
       {
-        title: MediaRenamer::Utils.title_from_file(@filename),
-        year: MediaRenamer::Utils.year_from_file(@filename),
-        filename: @filename,
+        title: title,
+        year: year,
+        filename: filename,
         duration: mediainfo.duration,
         filesize: mediainfo.size,
         width: mediainfo.width,
         height: mediainfo.height,
-        video_format: MediaRenamer::Utils.video_format(mediainfo.width, mediainfo.height),        
-        video_codec: MediaRenamer::Utils.video_codec(mediainfo.video_codec),
-        audio_codec: MediaRenamer::Utils.audio_codec(mediainfo.audio_codec, mediainfo.audio_channels)
+        video_format: video_format,
+        video_codec: video_codec,
+        audio_codec: audio_codec
       }
+    end
+
+    def to_json
+      to_hash.to_json
     end
 
 
