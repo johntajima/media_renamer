@@ -28,9 +28,12 @@ TODO: Write usage instructions here
 
 ## HLD
 
-> media_renamer <path/to/files> [options]
+> media_renamer <path> [options]
+> media_renamer -f <file> [options]
 
--f, --force     (no confirmation required)
+-y, --force     (no confirmation required)
+-D, --delete    (delete invalid files/empty dir - otherwise move to <target>/deletable )
+-d, --dest-path=<destination path> | <source path>
 -t, --template=<file of liquid templates>
     --dry-run
 
@@ -53,46 +56,37 @@ Movie:
 
 ## High Level Design
 
-- recursively go through provided directory and find all media files 
-  (video files, subtitle files)
-  - delete all other files (txt, image, info, etc files)?
+> execute with <file>|<dir>
 
-- for each video file
-  - reject if too short (< 10 min)
-  - get mediainfo on file
-  - if 0-60min => tv, 60+ => movie
-  - if movie
-    - api lookup at tmdb api and get file info
-    if TV
-    - api lookup at ...
-  - if api match(es) found,
-    - populate models and preview new file name/location for each match
-    - allow user to select which to use (dflt is first one)
-  - make change and delete old folder
+- if param is <dir>,
+  - Dir.glob all files in sorted reverse order (deepest first)
+  - for each <file>
+    - if valid file (video/audio/...)
+        process file
+      if invalid
+        move to <target>./deleteable
+      if dir,
+        move to <target>./deleteable if dir is empty
 
+Process File:
+- if movie,
+  - get metadata and determine title
+  - do Tmdb api lookup to get movie title
+  - move to <dest> with new name
+  - if parent path is empty, move parent path to deletable
 
-### models
-
-#### SourceFile
-  - path
-  - name
-  - format
-
-#### MediaInfo
-  - filename
-  - resolution (1080p, 720p, 480p, 360p, 320p, 2160p, 4k, ...)
-  - width
-  - height
-  - format [hevc, x265, x264, avi, mpeg4, mp4, ...]
-  - audio_codec (aac, ac3, dts, ...)
-  - video_codec (...)
-  - duration
-  - bitrate
-  - tags [directors cut, extended, ....]
+- if TV,
+  <tba>
+- else
+  move to deleteable
 
 
-### Movie / TV record
-  - name
-  - year
-  - genres
-  - 
+
+> media_renamer rename /downloads/avatar (2012)/avatar (2012).mkv
+
+> media_renamer rename /downloads/avatar (2012) -p /downloads
+  - process this path and all files in the path, and delete this path
+
+> media_renamer rename /downloads
+  - process all files found in this path, but keep downloads file as the parent
+  - don't delete this path

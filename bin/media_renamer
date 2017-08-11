@@ -8,33 +8,58 @@ require_relative '../lib/media_renamer'
 
 class MediaRenamerCLI < Thor
 
-  desc "rename <file|path>", "Renames media files found in path or given file"
+  desc "rename <file>|<path>", "Renames media files found in path or specific file"
   method_option :force, 
                 aliases: '-f', 
                 default: false,
                 type: :boolean,
                 desc: "Force renaming, without prompting for confirmation"
-  method_option :preview, 
-                aliases: '-p', 
+  method_option :root_path, 
+                aliases: '-p',
+                type: :string,
+                desc: "Root path (default is path passed in)"
+  method_option :target_path, 
+                aliases: '-t', 
+                desc: "Specify target root directory to save renamed files in"
+  method_option :delete_files,
+                aliases: '-D',
+                type: :boolean,
+                default: false,
+                desc: "delete files and empty directories (default moves them to ~/.deleteable)"
+  method_option :debug,
                 default: false,
                 type: :boolean,
-                desc: "Only previews the changes that would be made, does not make changes."
-  method_option :target_dir, 
-                aliases: '-d', 
-                desc: "Specify target root directory to save renamed files in"
-  # default action
-  # rename <path|file>
-  # renames all files in a given path, or a file
+                desc: "Debug mode"
+  method_option :preview,
+                type: :boolean,
+                default: false,
+                desc: "Dry run - don't actually make changes"
 
-  def rename(path_or_file)
-    options = {}
-    renamer = MediaRenamer::Renamer.new(path_or_file, options)
-    renamer.process!
+
+
+  def rename(file)
+    params = process_args(file, options)
+
+    files = params.delete(:files)
+
+
+    files.each do |file|
+      response = MediaRenamer::Renamer.lookup(file)
+
+      # if valid response
+        # if confrimation_required
+          # render options and get response
+        # else
+          # make change with default option
+      # else
+        # process invalid file (mv or delete)
+      # end
+    end
   end
 
   # go through all files and print out media info about each file
 
-  desc "Scan <file|path>", "Renames media files found in path or given file"
+  desc "scan <file|path>", "Renames media files found in path or given file"
   def scan(path)
     options = {}
     files = Dir.glob(File.expand_path(File.join(path, "**/*")))
@@ -49,6 +74,38 @@ class MediaRenamerCLI < Thor
       p movies.first
 
     end
+  end
+
+
+  def process_change()
+
+  private
+
+  def process_args(file, options)
+    file = File.expand_path(file)    
+    if !File.exist?(file)
+      puts "Invalid file or path - does not exist" 
+      exit
+    end
+
+    # set root path
+    root_path   = File.expand_path(options.fetch(:root_path, File.directory?(file) ? file : File.dirname(file)))
+    # set target path
+    target_path = File.expand_path(options.fetch(:target_path, root_path))
+    # array of files to be processed
+    files       = File.file?(file) ? [file] : Dir.glob(File.join(file, "/**/*")).sort.reverse
+    
+    params = {
+      root_path: root_path,
+      target_path: target_path,
+      debug: options.fetch(:debug),
+      delete_files: options.fetch(:delete_files),
+      confirmation_required: !options.fetch(:force),
+      preview: options.fetch(:preview),
+      files: files
+    }
+    puts JSON.pretty_generate(params) if debug
+    params
   end
 end
 
