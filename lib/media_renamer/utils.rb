@@ -145,6 +145,18 @@ module MediaRenamer
       if words.count > 1 && result = words.last.match(/(\d{4})/)
         return result[1].to_i
       end
+
+      # find year as last word after removing tag
+      p filename
+      TAGS.each_pair do |tag, _|
+        filename = filename.split(/#{tag}/).first || filename
+        p filename
+      end
+
+      words = filename.split(" ")
+      if words.count > 1 && result = words.last.match(/(\d{4})/)
+        return result[1].to_i
+      end
     end
 
     def tags_from_file(filename)

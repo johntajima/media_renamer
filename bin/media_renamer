@@ -44,18 +44,15 @@ class MediaRenamerCLI < Thor
 
     files.each do |file|
       # look up file and get suggested renames
-      response = MediaRenamer::Renamer.lookup(file)
-      # reponse is mediafile.attributes + movies:
-      case response[:type]
-      when :movie
-        movie = response.fetch(:movies,[]).first
+      mediafile = MediaRenamer::Mediafile.new(file)
 
-        if movie
-          new_filename = MediaRenamer::Templates.render_movie(movie: movie, file_params: response, target_path: params.fetch(:target_path))
-          log.debug "Movie: #{new_filename} for (#{File.basename(file)})"
+      case mediafile.type
+      when :movie
+        if movie = mediafile.movies.first
+          new_file = MediaRenamer::Templates.render_movie(movie, mediafile, params)
+          log.info("[Movie] #{new_file}")
         else
-          log.info("[Rename] Movie search failed. #{file}")
-          p response
+          log.info("[Rename] Movie search failed. #{mediafile.filename}")
         end
         # render new filenames for all movies
 

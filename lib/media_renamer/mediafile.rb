@@ -13,17 +13,14 @@ module MediaRenamer
     MIN_MOVIE_TIME = 60 * 60 # 1hr
     MIN_TV_TIME    = 20 * 60 # 20m
 
-    attr_reader :filename, :path, :ext, :type
+    attr_reader :file, :filename, :path, :ext, :type, :year, :title, :tag, :movie, :suggestions
 
 
     def initialize(filename)
       @file     = File.expand_path(filename)
-      @exists   = File.exist?(@file)
-      @ext      = File.extname(@file)
-      @path     = directory? ? @file : File.dirname(@file)
       @filename = File.basename(@file)
-      @ext      = File.extname(@file).gsub(/\./,'')
-      @type     = process_type
+      set_file_type
+      parse_file
     end
 
     def file?
@@ -34,24 +31,32 @@ module MediaRenamer
       File.directory?(@file)
     end
 
+    def exists?
+      File.exist?(@file)
+    end
+
     def video?
       VIDEO_EXT.include?(ext)
+    end
+
+    def movie?
+      type == :movie
+    end
+
+    def tv?
+      type == :tv
     end
 
     def subtitle?
       SUB_EXT.include?(ext)
     end
 
-    def exists?
-      @exists
+    def ext
+      @ext ||= File.extname(@file).gsub(/\./,'')
     end
 
-    def title
-      @title ||= MediaRenamer::Utils.title_from_file(filename)
-    end
-
-    def year
-      @year ||= MediaRenamer::Utils.year_from_file(filename)
+    def path
+      @path ||= directory? ? @file : File.dirname(@file)
     end
 
     def video_format
@@ -74,40 +79,75 @@ module MediaRenamer
       mediainfo.size
     end
 
+    def movie
+      movies.first || nil
+    end
+
+    def movies
+      @movies ||= begin
+        return [] unless movie?
+        MediaRenamer::Agents::TmdbAgent.search(title, year: year).slice(0,6)
+      end
+    end
+
+    def suggestions
+      movies
+    end
+
     def attributes
-      to_hash
+      params = {
+        file: file,
+        type: type,
+        filename: filename,
+        ext: ext,
+        path: path,
+        title: title,
+        year: year,
+        tag: tag,
+        movie: movie,
+        suggestions: movies
+      }
+      if video?
+        params.merge!(video_attributes)
+      end
+      params
     end
 
     def to_hash
-      attrib = { type: type }
-
-      if (type == :movie || type == :tv)
-        return attrib.merge({
-          type: type,
-          title: title,
-          year: year,
-          filename: filename,
-          ext: ext,
-          duration: mediainfo.duration,
-          filesize: mediainfo.size,
-          width: mediainfo.width,
-          height: mediainfo.height,
-          video_format: video_format,
-          video_codec: video_codec,
-          audio_codec: audio_codec
-        })
-      end
-      attrib
+      attributes
     end
 
     def to_json
       attributes.to_json
     end
 
+    def to_liquid
+      attributes.stringify_keys.to_liquid
+    end
 
     private
 
-    def process_type
+    def video_attributes
+      return {} unless video?
+      {
+        duration: mediainfo.duration,
+        filesize: mediainfo.size,
+        width: mediainfo.width,
+        height: mediainfo.height,
+        video_format: video_format,
+        video_codec: video_codec,
+        audio_codec: audio_codec        
+      }
+    end
+
+    def parse_file
+      parsed  = MediaRenamer::FileParser.new(@filename)
+      @title  = parsed.title
+      @year   = parsed.year
+      @tag    = parsed.tag
+    end
+
+    def set_file_type
       @type ||= begin
         return :unknown if !exists?
         return :directory if directory?      
@@ -140,5 +180,6 @@ module MediaRenamer
     def mediainfo
       @mediainfo ||= FFMPEG::Movie.new(@file)
     end
+
   end
 end

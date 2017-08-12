@@ -6,10 +6,6 @@ module MediaRenamer
 
       extend self
 
-      TMBD_IMAGE_PATH = "http://image.tmdb.org/t/p/"
-      THUMBNAIL_PATH  = "160w"
-
-
       def search(query, options = {})
         results = tmdb.search(query, options)
         sleep(0.5)
@@ -17,20 +13,10 @@ module MediaRenamer
       end
 
       def sanitize_results(results)
-        results.map do |entry|
-          year = entry.release_date.present? ? Date.parse(entry.release_date).year : nil
-          {
-            title: entry.title,
-            year: year,
-            id: entry.id,
-            popularity: entry.popularity,
-            thumbnail: [TMBD_IMAGE_PATH, THUMBNAIL_PATH, entry.poster_path].compact.join
-          }
-        end
+        return [] if results.nil? || results.empty?
+        results.map {|entry| MediaRenamer::Movie.new(entry)}
       end
-
       # poster path http://image.tmdb.org/t/p/<width>w/URL
-
 
       private
 

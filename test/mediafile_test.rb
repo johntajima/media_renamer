@@ -13,7 +13,7 @@ class MediaRenamer::MediafileTest < ActiveSupport::TestCase
     assert @media.file?
     assert_equal "Skyfall.2012.1080p.BluRay.x264-TiMELORDS.mkv", @media.filename
     assert_equal File.expand_path('./../files',__FILE__), @media.path
-    assert_equal ".mkv", @media.ext
+    assert_equal "mkv", @media.ext
     assert @media.exists?
   end
 

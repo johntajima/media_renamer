@@ -7,8 +7,12 @@ MOVIE_TEMPLATE: "\
 {% elsif video_format == '2K' or video_format == '4K' }HQ/\
 {% else %}low/\
 {%endif%}\
-{{title}} ({{year}}) [{{video_format}}]\
-/{{title}} ({{year}}) [{{video_format}}] \
+{{title}} ({{year}}) \
+{% if tag %}{{tag}} {% endif %}\
+[{{video_format}}]\
+/{{title}} ({{year}}) \
+{% if tag %}{{tag}} {% endif %}\
+[{{video_format}}] \
 {% if video_codec == 'HEVC' %}[HEVC] {%endif%}\
 [{{audio_codec}}].{{ext}}"
 TV_TEMPLATE: "test"
