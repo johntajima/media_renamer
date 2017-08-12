@@ -80,7 +80,7 @@ module MediaRenamer
     end
 
     def movie
-      movies.first || nil
+      movies.first
     end
 
     def movies

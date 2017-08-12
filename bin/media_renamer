@@ -38,7 +38,7 @@ class MediaRenamerCLI < Thor
 
 
   def rename(file)
-    log.info("[Rename] Start")
+    log.info("[Rename] Starting...")
     params = process_args(file, options)
     files = params.delete(:files)
 
@@ -48,7 +48,11 @@ class MediaRenamerCLI < Thor
 
       case mediafile.type
       when :movie
-        if movie = mediafile.movies.first
+        if movie = mediafile.movie
+
+          # render available choices
+          # get selection
+          # move file
           new_file = MediaRenamer::Templates.render_movie(movie, mediafile, params)
           log.info("[Movie] #{new_file}")
         else
@@ -61,25 +65,26 @@ class MediaRenamerCLI < Thor
       when :audio
 #        log.debug("[Rename] Audio file - skip")        
       when :directory
-#        log.debug("[Rename] Directory - skip (check if empty)")
+        # if path == root_path
+          # next
+        # else
+          # if path is empty
+            # if deletable?
+              # delete path
+            # else
+              # move/rename to deleteable path
+            # end
+          # else
+            # next
+          # end
+        #end
       else
 #        log.debug("[Rename] Unknown - to be deleted")
-        # delete all other files
+        # if deleteable?
+          # delete
+        # else 
+          # move
       end
-
-      # if valid response
-        # if confrimation_required
-          # render options and get response
-          # set liquid variables
-          # new_file = MediaRenamer::Templates.render_movie(movie, params)
-          # make change
-        # else
-          # make change with default option
-        # end
-      # else
-        # process invalid file (mv or delete)
-      # end
-      nil
     end
   end
 
