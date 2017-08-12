@@ -20,7 +20,7 @@ class MediaRenamerCLI < Thor
                 desc: "Root path (default is path passed in)"
   method_option :target_path, 
                 aliases: '-t', 
-                desc: "Specify target root directory to save renamed files in"
+                desc: "Specify target directory to save renamed files in"
   method_option :delete_files,
                 aliases: '-D',
                 type: :boolean,
