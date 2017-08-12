@@ -1,6 +1,14 @@
 TMDB_API:
 MOVIE_TEMPLATE: "\
-{{root_path}}/Movies/{{name}} ({{year}}) [{{resolution}}]\
-/{{name}} ({{year}}) [{{resolution}}] {{}}
-"
+{{target_path}}/\
+{% if video_format == 'HEVC'}_hevc/\
+{% elsif video_format == '1080p'}1080p/\
+{% elsif video_format == '720p'}720p/\
+{% elsif video_format == '2K' or video_format == '4K' }HQ/\
+{% else %}low/\
+{%endif%}\
+{{title}} ({{year}}) [{{video_format}}]\
+/{{title}} ({{year}}) [{{video_format}}] \
+{% if video_codec == 'HEVC' %}[HEVC] {%endif%}\
+[{{audio_codec}}].{{ext}}"
 TV_TEMPLATE: "test"
