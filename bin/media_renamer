@@ -40,9 +40,7 @@ class MediaRenamerCLI < Thor
   def rename(file)
     log.info("[Rename] Start")
     params = process_args(file, options)
-
     files = params.delete(:files)
-
 
     files.each do |file|
       # look up file and get suggested renames
@@ -57,17 +55,18 @@ class MediaRenamerCLI < Thor
           log.debug "Movie: #{new_filename} for (#{File.basename(file)})"
         else
           log.info("[Rename] Movie search failed. #{file}")
+          p response
         end
         # render new filenames for all movies
 
       when :tv
-        log.debug("[Rename] TV file - skip")
+#        log.debug("[Rename] TV file - skip")
       when :audio
-        log.debug("[Rename] Audio file - skip")        
+#        log.debug("[Rename] Audio file - skip")        
       when :directory
-        log.debug("[Rename] Directory - skip (check if empty)")
+#        log.debug("[Rename] Directory - skip (check if empty)")
       else
-        log.debug("[Rename] Unknown - to be deleted")
+#        log.debug("[Rename] Unknown - to be deleted")
         # delete all other files
       end
 

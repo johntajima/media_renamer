@@ -11,6 +11,26 @@ module MediaRenamer
       rarbg stv yify
       1080p 720p |
 
+    TAGS = {
+      "extended"           => "Extended",
+      "extended cut"       => "Extended",
+      "extented version"   => "Extended",
+      "unrated"            => "Unrated",
+      "unrated dc"         => "Unrated Directors Cut",
+      "dc"                 => "Directors Cut",
+      "director cut"       => "Directors Cut",
+      "director's cut"     => "Directors Cut",
+      "directors cut"      => "Directors Cut",
+      "directors version"  => "Directors Cut",
+      "director's version" => "Directors Cut",
+      "final cut"          => "Final Cut",
+      "rogue version"      => "Rogue Version",
+      "rogue cut"          => "Rogue Version",
+      "ultimate edition"   => "Ultimate Edition",
+      "the final cut"      => "Final Cut",
+      "US theatrical cut"  => "Theatrical Cut",
+      "fan edit"           => "Fan Edit"
+    }
 
 
     # given a width and height, returns back video format
@@ -77,7 +97,7 @@ module MediaRenamer
       filename = filename.gsub(/\[/, " [").gsub(/\(/, " (")
 
       # remove extra spaces
-      filename = filename.gsub(/\s+/, ' ')
+      filename = filename.gsub(/\s{2,}/, ' ')
 
       # ignore anything after ( or [
       filename = filename.split(/\[|\(/).first.strip
@@ -86,7 +106,7 @@ module MediaRenamer
       filename = filename.downcase.split(/#{TITLE_STOP_WORDS.join("|")}/).first || ""
 
       # remove year if its the last word but not the only word
-      words = filename.split(" ")
+      words = filename.split(" ").map(&:strip).compact
       if words.count > 0
         filename = if words.last.match(/\d{4}/) && words.count > 1
           words[0..-2].join(" ")
@@ -95,6 +115,11 @@ module MediaRenamer
         end
       else
         filename
+      end
+
+      # get filename before any tags
+      TAGS.each_pair do |tag, _|
+        filename = filename.split(/#{tag}/).first || filename
       end
 
       # titleize remaining words and strip
@@ -120,6 +145,10 @@ module MediaRenamer
       if words.count > 1 && result = words.last.match(/(\d{4})/)
         return result[1].to_i
       end
+    end
+
+    def tags_from_file(filename)
+      filename = File.basename(filename, ".*")
     end
 
   end
