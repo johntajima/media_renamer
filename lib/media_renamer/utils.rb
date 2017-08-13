@@ -3,7 +3,7 @@ module MediaRenamer
   require 'fileutils'
   module Utils
 
-    DELETABLE_PATH = "/_deleteable"
+    DELETEABLE_PATH = "/_deleteable"
 
     extend self
 
@@ -65,13 +65,13 @@ module MediaRenamer
     def move_file(source, dest, options)
       return if source == dest
       dest_path = File.dirname(dest)
-      if options[:preview]
-        puts "mv #{source} #{dest}"
-      else
-        if confirmation("mv #{source} #{dest}", options)
+      if confirmation("mv #{source} #{dest}", options)
+        if options[:preview]
+          puts "[PREVIEW] mv #{source} #{dest}"
+        else
           if !File.directory?(dest_path)
             if options[:preview]
-              puts "mkdir -p #{dest_path}"
+              puts "[PREVIEW] mkdir -p #{dest_path}"
             else
               FileUtils.mkdir_p dest_path
             end
@@ -84,26 +84,22 @@ module MediaRenamer
     def delete_dir(file, options)
       return unless File.exist?(file) 
       return if Dir.entries(file).size > 2
-      if options[:delete_files]
+      if confirmation("rmdir #{file}", options)
         if options[:preview]
-          puts "rmdir #{file}"
+          puts "[PREVIEW] rmdir #{file}"
         else
-        if confirmation("rmdir #{file}", options)
           FileUtils.rmdir file
         end
-        end
-      else
-        move_file(file, deleteable_file(file, options), options)
       end
     end
 
     def delete_file(file, options)
       return unless File.exist?(file) 
       if options[:delete_files]
-        if options[:preview]
-          puts "rm #{file}"
-        else
-          if confirmation("rm #{file}", options)
+        if confirmation("rm #{file}", options)
+          if options[:preview]
+            puts "[PREVIEW] rm #{file}"
+          else
             FileUtils.rm_f file
           end
         end
@@ -114,12 +110,12 @@ module MediaRenamer
 
     def deleteable_file(file, options)
       path = file.split(options[:orig_path])
-      File.join(options[:orig_path], DELETABLE_PATH, path)
+      File.join(options[:orig_path], DELETEABLE_PATH, path)
     end
 
     def confirmation(msg, options)
       return true unless options[:confirmation_required] == true
-      puts "#{msg} [Y/n/q]"
+      puts "[CONFIRM] #{msg}? [Y/n/q]"
       value = STDIN.getch
       case value
       when 'q', "Q", "\u0003"

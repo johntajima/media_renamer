@@ -38,9 +38,11 @@ class MediaRenamerCLI < Thor
 
 
   def rename(file)
-    log.info("[Rename] Starting...")
     params = process_args(file, options)
     files = params.delete(:files)
+    log.info("[Rename] Starting...found #{files.count} files/paths")
+
+    files.reject! {|f| f.include?(MediaRenamer::Utils::DELETEABLE_PATH)}
 
     files.each do |file|
       log.info("Processing #{file}")
@@ -63,7 +65,7 @@ class MediaRenamerCLI < Thor
       when :directory
         if file == params[:root_path]
           next
-        elsif File.basename(file) == "_deleteable"
+        elsif file.include?("_deleteable")
           next
         else
           MediaRenamer::Utils.delete_dir(file, params)
