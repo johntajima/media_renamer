@@ -1,6 +1,9 @@
 module MediaRenamer
 
+  require 'fileutils'
   module Utils
+
+    DELETABLE_PATH = "/.deleteable/"
 
     extend self
 
@@ -56,6 +59,80 @@ module MediaRenamer
         end
       channels ? "#{text} #{channels}ch" : text
     end
+
+
+    # move file from source => dest
+    def move_file(source, dest, options)
+      dest_path = File.dirname(dest)
+      if !File.directory?(dest_path)
+        if options[:preview]
+          puts "mkdir -p #{dest_path}"
+        else
+          FileUtils.mkdir_p dest_path
+        end
+      end
+      if options[:preview]
+        puts "mv #{source} #{dest}"
+      else
+        if confirmation("mv #{source} #{dest}", options)
+          FileUtils.mv source, dest
+        end
+      end
+    end
+
+    def delete_dir(file, options)
+      return unless File.exist?(file) 
+      return if Dir.entries(file).size > 2
+      if options[:delete_files]
+        if options[:preview]
+          puts "rmdir #{file}"
+        else
+        if confirmation("rmdir #{file}", options)
+          FileUtils.rmdir file
+        end
+        end
+      else
+        move_file(file, deleteable_file(file, options), options)
+      end
+    end
+
+    def delete_file(file, options)
+      return unless File.exist?(file) 
+      if options[:delete_files]
+        if options[:preview]
+          puts "rm #{file}"
+        else
+          if confirmation("rm #{file}", options)
+            FileUtils.rm_f file
+          end
+        end
+      else
+        move_file(file, deleteable_file(file, options), options)
+      end
+    end
+
+    def deleteable_file(file, options)
+      path = file.split(options[:orig_path])
+      File.join(options[:orig_path], DELETABLE_PATH, path)
+    end
+
+    def confirmation(msg, options)
+      return true unless options[:confirmation_required] == true
+      puts "#{msg} [Y/n/q]"
+      value = STDIN.getch
+      case value
+      when 'q', "Q", "\u0003"
+        puts
+        exit
+      when 'y', "Y", "\r", "\n"
+        puts
+        true
+      else
+        puts "Skipping."
+        false
+      end
+    end
+
   end
 
 end

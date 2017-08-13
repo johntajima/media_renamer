@@ -2,8 +2,6 @@ module MediaRenamer
 
   module Renamer
 
-    DELETABLE_PATH = "/.deleteable/"
-
     extend self
 
 

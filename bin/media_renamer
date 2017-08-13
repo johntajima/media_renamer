@@ -43,69 +43,34 @@ class MediaRenamerCLI < Thor
     files = params.delete(:files)
 
     files.each do |file|
-      # look up file and get suggested renames
       mediafile = MediaRenamer::Mediafile.new(file)
-
       case mediafile.type
       when :movie
         if movie = mediafile.movie
-
           # render available choices
           # get selection
-          # move file
           new_file = MediaRenamer::Templates.render_movie(movie, mediafile, params)
-          log.info("[Movie] new path #{new_file}")
+          # move file
+          MediaRenamer::Utils.move_file(file, new_file, params)
         else
-          log.info("[Rename] Movie search failed. #{mediafile.filename}")
+          log.info("[Failed] Movie lookup failed. Skipping. #{mediafile.filename}")
         end
-        # render new filenames for all movies
-
       when :tv
 #        log.debug("[Rename] TV file - skip")
       when :audio
 #        log.debug("[Rename] Audio file - skip")        
       when :directory
-        # if path == root_path
-          # next
-        # else
-          # if path is empty
-            # if deletable?
-              # delete path
-            # else
-              # move/rename to deleteable path
-            # end
-          # else
-            # next
-          # end
-        #end
+        if file == params[:root_path]
+          next
+        else
+          MediaRenamer::Utils.delete_dir(file, params)
+        end
       else
-#        log.debug("[Rename] Unknown - to be deleted")
-        # if deleteable?
-          # delete
-        # else 
-          # move
+        MediaRenamer::Utils.delete_file(file, params)
       end
     end
   end
 
-  # go through all files and print out media info about each file
-
-  # desc "scan <file|path>", "Renames media files found in path or given file"
-  # def scan(path)
-  #   options = {}
-  #   files = Dir.glob(File.expand_path(File.join(path, "**/*")))
-  #   audio_codecs = []
-  #   video_codecs = []
-  #   files.each do |f|
-  #     m = MediaRenamer::Mediafile.new(f)
-  #     next unless m.video?
-  #     next if m.title.blank?
-
-  #     movies = MediaRenamer::Agents::TmdbAgent.search(m.title, year: m.year)
-  #     p movies.first
-
-  #   end
-  # end
 
   private
 
@@ -126,14 +91,20 @@ class MediaRenamerCLI < Thor
     end
 
     debug = options.fetch(:debug)
+
+    orig_path = File.directory?(file) ? file : File.dirname(file)
     # set root path
     root_path   = File.expand_path(options.fetch(:root_path, File.directory?(file) ? file : File.dirname(file)))
+    root_path = root_path.gsub(/\/\z/,'') #strip off ending /
+    
     # set target path
     target_path = File.expand_path(options.fetch(:target_path, root_path))
+    target_path = target_path.gsub(/\/\z/,'') #strip off ending /
     # array of files to be processed
     files       = File.file?(file) ? [file] : Dir.glob(File.join(file, "/**/*")).sort.reverse
     
     params = {
+      orig_path: orig_path,
       root_path: root_path,
       target_path: target_path,
       debug: debug,

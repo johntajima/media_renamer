@@ -149,25 +149,29 @@ module MediaRenamer
 
     def set_file_type
       @type ||= begin
-        return :unknown if !exists?
-        return :directory if directory?      
-        case 
-        when VIDEO_EXT.include?(ext)
-          if duration >= MIN_MOVIE_TIME
-            :movie
-          elsif duration >= MIN_TV_TIME
-            :tv
-          else
-            :unknown 
-          end
-        when AUDIO_EXT.include?(ext)
-          :audio
-        when SUB_EXT.include?(ext)
-          :subtitle
-        when IMAGE_EXT.include?(ext)
-          :image
-        else
+        if !exists?
           :unknown
+        elsif directory?
+          :directory
+        else
+          case 
+          when VIDEO_EXT.include?(ext)
+            if duration >= MIN_MOVIE_TIME
+              :movie
+            elsif duration >= MIN_TV_TIME
+              :tv
+            else
+              :unknown 
+            end
+          when AUDIO_EXT.include?(ext)
+            :audio
+          when SUB_EXT.include?(ext)
+            :subtitle
+          when IMAGE_EXT.include?(ext)
+            :image
+          else
+            :unknown
+          end
         end
       end
     end
