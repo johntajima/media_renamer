@@ -3,7 +3,7 @@ module MediaRenamer
   require 'fileutils'
   module Utils
 
-    DELETABLE_PATH = "/.deleteable/"
+    DELETABLE_PATH = "/_deleteable"
 
     extend self
 
@@ -63,6 +63,7 @@ module MediaRenamer
 
     # move file from source => dest
     def move_file(source, dest, options)
+      return if source == dest
       dest_path = File.dirname(dest)
       if options[:preview]
         puts "mv #{source} #{dest}"

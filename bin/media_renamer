@@ -43,6 +43,7 @@ class MediaRenamerCLI < Thor
     files = params.delete(:files)
 
     files.each do |file|
+      log.info("Processing #{file}")
       mediafile = MediaRenamer::Mediafile.new(file)
       case mediafile.type
       when :movie
@@ -61,6 +62,8 @@ class MediaRenamerCLI < Thor
 #        log.debug("[Rename] Audio file - skip")        
       when :directory
         if file == params[:root_path]
+          next
+        elsif File.basename(file) == "_deleteable"
           next
         else
           MediaRenamer::Utils.delete_dir(file, params)
