@@ -1,9 +1,10 @@
 # MediaRenamer
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/media_renamer`. To experiment with that code, run `bin/console` for an interactive prompt.
+MediaRenamer is a gem and CLI that will rename your video files.
 
-Media Renamer will analyze and rename your media files based on whether it's a movie or TV file. It will lookup movie information, and rename it against the templates specified.
-It can almost move files to different locations based on the type of file, file size, attributes, etc.
+It will scan recursively through the path you provide and if it finds a video file, it will guess the movie name, lookup in Tmdb API and rewrite the filename based on the movie in the target folder you designate. It will also remove unrelated files such as screenshots, sub files, and text files.
+
+You can specify the format of the rewritten file using liquid template stored in the config file.
 
 ## Installation
 
@@ -23,19 +24,24 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    media_renamer rename <path|file> [options]
 
+    Options:
+      -f, [--force]                              # Force renaming, 
+                                                   without prompting for confirmation
+      -p, [--root-path=ROOT_PATH]                # Root path (default is path passed in)
+      -t, [--target-path=TARGET_PATH]            # Specify target directory to save 
+                                                   renamed files in
+      -D, [--delete-files], [--no-delete-files]  # delete files and empty directories 
+                                                   (default moves them to ~/.deleteable)
+          [--debug], [--no-debug]                # Debug mode
+          [--preview], [--no-preview]            # Dry run - don't actually make changes
 
-## HLD
+-f will skip the confirmation step. With confirmation, Y or enter will confirm the action, any other character will skip that action, q or Ctrl-C will quit.
 
-> media_renamer <path> [options]
-> media_renamer -f <file> [options]
-
--y, --force     (no confirmation required)
--D, --delete    (delete invalid files/empty dir - otherwise move to <target>/deletable )
--d, --dest-path=<destination path> | <source path>
--t, --template=<file of liquid templates>
-    --dry-run
+-t=<path> defines what the target path is. This will be used as the target path in the template when used to generate the destination file
+-D will delete empty directories and invalid files, otherwise it will move them to the <root_path>/.deletable/<orig filename> path for later manual deletion/review
+--preview will not do anything, just print out what action would take place
 
 
 ## config file
@@ -47,46 +53,25 @@ TV_TEMPLATE:
 
 ### Templates
 
-Movie:
+Templates use liquid template language.
+Variables are:
 
-/Movies/The Terminator (1983) [1080p] Extended Cut [HEVC]/The Terminator (1983) [1080p] Extended Cut [HEVC] [AAC 6ch].mkv
-/Movies/Blade Runner (1983) [1080p] Final Cut/Blade Runner (1983) [1080p] Final Cut [AC3 2ch].mkv
-/Movies/Parenthood (1999) [720p]/Parenthood (1999) [720p] [AC3 2ch].mkv
+    title           # name of the movie: eg: Avatar
+    year            # year of the movie
+    video_format    # format: 1080p, 720p, 4K, 2K, 480p, 360p
+    video_codec     # video codec: HEVC, H264, MP4
+    audio_codec     # audio codec and channels: AAC 6ch, AC3 2ch, MP3 7ch
+    ext             # file extension: mp4, avi, divx, mkv
+    tag             # tags: eg: Extended, Directors Cut, ...
+    target_path     # 
 
+### TO DO
 
-## High Level Design
+Only movies are recognized right now.
+TV shows will be coming soon.
 
-> execute with <file>|<dir>
+Audio files are recognized but skipped.
 
-- if param is <dir>,
-  - Dir.glob all files in sorted reverse order (deepest first)
-  - for each <file>
-    - if valid file (video/audio/...)
-        process file
-      if invalid
-        move to <target>./deleteable
-      if dir,
-        move to <target>./deleteable if dir is empty
+All other files (including sub files) are considered deleteable. This means image files, sub files, text files and all others are considered deleteable.
 
-Process File:
-- if movie,
-  - get metadata and determine title
-  - do Tmdb api lookup to get movie title
-  - move to <dest> with new name
-  - if parent path is empty, move parent path to deletable
-
-- if TV,
-  <tba>
-- else
-  move to deleteable
-
-
-
-> media_renamer rename /downloads/avatar (2012)/avatar (2012).mkv
-
-> media_renamer rename /downloads/avatar (2012) -p /downloads
-  - process this path and all files in the path, and delete this path
-
-> media_renamer rename /downloads
-  - process all files found in this path, but keep downloads file as the parent
-  - don't delete this path
+Tests are not working or need updating!
