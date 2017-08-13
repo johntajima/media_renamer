@@ -54,7 +54,7 @@ class MediaRenamerCLI < Thor
           # get selection
           # move file
           new_file = MediaRenamer::Templates.render_movie(movie, mediafile, params)
-          log.info("[Movie] #{new_file}")
+          log.info("[Movie] new path #{new_file}")
         else
           log.info("[Rename] Movie search failed. #{mediafile.filename}")
         end
