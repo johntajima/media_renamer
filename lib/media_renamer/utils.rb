@@ -64,17 +64,17 @@ module MediaRenamer
     # move file from source => dest
     def move_file(source, dest, options)
       dest_path = File.dirname(dest)
-      if !File.directory?(dest_path)
-        if options[:preview]
-          puts "mkdir -p #{dest_path}"
-        else
-          FileUtils.mkdir_p dest_path
-        end
-      end
       if options[:preview]
         puts "mv #{source} #{dest}"
       else
         if confirmation("mv #{source} #{dest}", options)
+          if !File.directory?(dest_path)
+            if options[:preview]
+              puts "mkdir -p #{dest_path}"
+            else
+              FileUtils.mkdir_p dest_path
+            end
+          end
           FileUtils.mv source, dest
         end
       end
