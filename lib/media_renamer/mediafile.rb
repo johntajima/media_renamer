@@ -86,7 +86,11 @@ module MediaRenamer
     def movies
       @movies ||= begin
         return [] unless movie?
-        MediaRenamer::Agents::TmdbAgent.search(title, year: year).slice(0,6)
+        entries = MediaRenamer::Agents::TmdbAgent.search(title, year: year).slice(0,6)
+        if entries.empty?
+          entries = MediaRenamer::Agents::TmdbAgent.search(title).slice(0,6)
+        end
+        entries
       end
     end
 

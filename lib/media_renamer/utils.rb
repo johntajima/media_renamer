@@ -83,12 +83,17 @@ module MediaRenamer
 
     def delete_dir(file, options)
       return unless File.exist?(file) 
-      return if Dir.entries(file).size > 2
+
+      dir_files = Dir.entries(file).reject {|x| x.start_with?('.')}
+      if dir_files.count > 0
+        p "dir #{file} not empty #{dir_files}"
+        return
+      end
       if confirmation("rmdir #{file}", options)
         if options[:preview]
           puts "[PREVIEW] rmdir #{file}"
         else
-          FileUtils.rmdir file
+          FileUtils.rm_rf file
         end
       end
     end

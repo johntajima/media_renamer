@@ -45,7 +45,7 @@ class MediaRenamerCLI < Thor
     files.reject! {|f| f.include?(MediaRenamer::Utils::DELETEABLE_PATH)}
 
     files.each do |file|
-      log.info("Processing #{file}")
+      log.info("Processing #{file}")      
       mediafile = MediaRenamer::Mediafile.new(file)
       case mediafile.type
       when :movie
@@ -56,10 +56,11 @@ class MediaRenamerCLI < Thor
           # move file
           MediaRenamer::Utils.move_file(file, new_file, params)
         else
-          log.info("[Failed] Movie lookup failed. Skipping. #{mediafile.filename}")
+          log.info("[Failed] Movie lookup failed. Skipping. #{mediafile.filename} #{mediafile.attributes}")
         end
       when :tv
 #        log.debug("[Rename] TV file - skip")
+        log.debug(mediafile.to_json)
       when :audio
 #        log.debug("[Rename] Audio file - skip")        
       when :directory

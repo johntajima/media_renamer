@@ -10,7 +10,7 @@ module MediaRenamer
     attr_reader :title, :year, :tag
 
     TITLE_STOP_WORDS = %w| 
-      xvid dvdrip dvdscr screener bluray brrip divx       
+      xvid dvdrip dvdscr screener bluray brrip divx hdrip bdrip bdremux hdtv
       h264 h265 hevc 
       cd1 cd2 
       rarbg stv yify
@@ -54,7 +54,9 @@ module MediaRenamer
       filename = filename.split(/\[|\(/).first.strip
       
       # get filename before any stop words
-      filename = filename.downcase.split(/#{TITLE_STOP_WORDS.join("|")}/).first || ""
+      TITLE_STOP_WORDS.each do |word|
+        filename = filename.downcase.split(/#{word}/).first || ""
+      end
 
       # return year if last word is a year
       words = filename.split(" ")
