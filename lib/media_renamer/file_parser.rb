@@ -17,24 +17,26 @@ module MediaRenamer
       1080p 720p |
 
     TAGS = {
-      "extended cut"       => "Extended",
-      "extented version"   => "Extended",
-      "extended"           => "Extended",
-      "unrated dc"         => "Unrated Directors Cut",
-      "unrated"            => "Unrated",
-      "dc"                 => "Directors Cut",
-      "director cut"       => "Directors Cut",
-      "director's cut"     => "Directors Cut",
-      "directors cut"      => "Directors Cut",
-      "directors version"  => "Directors Cut",
-      "director's version" => "Directors Cut",
-      "the final cut"      => "Final Cut",
-      "final cut"          => "Final Cut",
-      "rogue version"      => "Rogue Version",
-      "rogue cut"          => "Rogue Version",
-      "ultimate edition"   => "Ultimate Edition",
-      "us theatrical cut"  => "Theatrical Cut",
-      "fan edit"           => "Fan Edit"
+      "extended cut"             => "Extended",
+      "extented version"         => "Extended",
+      "extended"                 => "Extended",
+      "unrated"                  => "Unrated",
+      "dc"                       => "Directors Cut",
+      "director cut"             => "Directors Cut",
+      "director's cut"           => "Directors Cut",
+      "directors cut"            => "Directors Cut",
+      "directors version"        => "Directors Cut",
+      "director's version"       => "Directors Cut",
+      "directors definitive cut" => "Directors Cut",
+      "the final cut"            => "Final Cut",
+      "final cut"                => "Final Cut",
+      "rogue version"            => "Rogue Version",
+      "rogue cut"                => "Rogue Version",
+      "ultimate edition"         => "Ultimate Edition",
+      "us theatrical cut"        => "Theatrical Cut",
+      "fan edit"                 => "Fan Edit",
+      "fanedit"                  => "Fan Edit",
+      "special edition"          => "Special Edition"
     }
 
     def initialize(filename)
@@ -105,12 +107,10 @@ module MediaRenamer
     end
 
     def extract_tag(filename)
-      TAGS.detect do |text, tag|
-        if matches = filename.match(/(\A|\s|\(|\[)#{text}(\s|\z)/)
-          return tag
-        end
-      end
-      nil
+      tags = TAGS.map do |text, tag|
+        tag if matches = filename.match(/(\A|\s|\(|\[)#{text}(\s|\z)/)
+      end.compact.uniq.sort.join(" ")
+      tags.blank? ? nil : tags
     end
 
 

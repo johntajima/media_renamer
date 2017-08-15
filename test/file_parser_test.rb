@@ -53,13 +53,20 @@ class MediaRenamer::FileParserTest < ActiveSupport::TestCase
 
     f = "Kingdom of Heaven 2005 unrated dc (1080p)"
     @parser = MediaRenamer::FileParser.new(f)
-    assert_equal "Unrated Directors Cut", @parser.tag
+    assert_equal "Directors Cut Unrated", @parser.tag
   end
 
   test "#extract_tags does not return tag if tag words are within a word" do
     f = "the dcators"
     @parser = MediaRenamer::FileParser.new(f)
     assert_nil @parser.tag
+  end
+
+  test "#extract_tags extracts multiple tags and uniqs them" do
+    f = "Kingdom of Heaven 2005 unrated dc (1080p)"
+    @parser = MediaRenamer::FileParser.new(f)
+    tag = @parser.extract_tag("unrated directors cut")
+    assert_equal "Directors Cut Unrated", tag
   end
 
   test "#extract_year returns back first valid year found in filename" do
