@@ -40,16 +40,20 @@ Or install it yourself as:
 -f will skip the confirmation step. With confirmation, Y or enter will confirm the action, any other character will skip that action, q or Ctrl-C will quit.
 
 -t=<path> defines what the target path is. This will be used as the target path in the template when used to generate the destination file
+
 -D will delete empty directories and invalid files, otherwise it will move them to the <root_path>/.deletable/<orig filename> path for later manual deletion/review
+
 --preview will not do anything, just print out what action would take place
 
 
 ## config file
-~/.media_rename.yml
+    ~/.media_rename.yml
 
-TMDB_API: 
-MOVIE_TEMPLATE:
-TV_TEMPLATE:
+    TMDB_API: <your API key>
+    MOVIE_TEMPLATE: {{target_path}}/{{title}} ({{year}}) [{{video_format}}]/\
+                    {{title}} ({{year}}) [{{video_format}}].{{ext}}
+    TV_TEMPLATE: {{target_path}}/{{title}}/{{title}} Season {{season}}/\
+                 {{title}} S{{season}}E{{episode}}.{{ext}}
 
 ### Templates
 
@@ -58,12 +62,12 @@ Variables are:
 
     title           # name of the movie: eg: Avatar
     year            # year of the movie
-    video_format    # format: 1080p, 720p, 4K, 2K, 480p, 360p
+    video_format    # format: 1080p, 720p, 4K, 2K, 480p, 360p, SD
     video_codec     # video codec: HEVC, H264, MP4
     audio_codec     # audio codec and channels: AAC 6ch, AC3 2ch, MP3 7ch
     ext             # file extension: mp4, avi, divx, mkv
     tag             # tags: eg: Extended, Directors Cut, ...
-    target_path     # 
+    target_path     # the root absolute path of where renamed files should go
 
 ### TO DO
 
