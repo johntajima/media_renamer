@@ -38,7 +38,7 @@ module MediaRenamer
     IMAGE_EXT = %w| jpeg jpg bmp png tiff|
 
     MIN_MOVIE_TIME = 100 * 60 # 1.5hr
-    MIN_TV_TIME    = 24 * 60  # 24m
+    MIN_TV_TIME    = 20 * 60  # 24m
 
     def sanitize_filename(filename)
       # remove extension

@@ -66,19 +66,11 @@ module MediaRenamer
     def move_file(source, dest, options)
       return if source == dest
       dest_path = File.dirname(dest)
-      if confirmation("mv #{source} #{dest}", options)
-        if options[:preview]
-          puts "[PREVIEW] mv #{source} #{dest}"
-        else
-          if !File.directory?(dest_path)
-            if options[:preview]
-              puts "[PREVIEW] mkdir -p #{dest_path}"
-            else
-              FileUtils.mkdir_p dest_path
-            end
-          end
-          FileUtils.mv source, dest
+      if confirmation("mv #{source}\n => #{dest}", options)
+        if !File.directory?(dest_path)
+          FileUtils.mkdir_p dest_path, verbose: true, noop: options[:preview]
         end
+        FileUtils.mv source, dest, verbose: true, noop: options[:preview]
       end
     end
 
@@ -91,11 +83,7 @@ module MediaRenamer
         return
       end
       if confirmation("rmdir #{file}", options)
-        if options[:preview]
-          puts "[PREVIEW] rmdir #{file}"
-        else
-          FileUtils.rm_rf file
-        end
+        FileUtils.rm_rf file, verbose: true, noop: options[:preview]
       end
     end
 
@@ -103,11 +91,7 @@ module MediaRenamer
       return unless File.exist?(file) 
       if options[:delete_files]
         if confirmation("rm #{file}", options)
-          if options[:preview]
-            puts "[PREVIEW] rm #{file}"
-          else
-            FileUtils.rm_f file
-          end
+          FileUtils.rm_f file, verbose: true, noop: options[:preview]
         end
       else
         move_file(file, deleteable_file(file, options), options)

@@ -29,8 +29,8 @@ module MediaRenamer
       attributes = {
         title: tv.title,
         year: tv.year,
-        tv_season: tv.tv_season,
-        tv_episode: tv.tv_episode,
+        tv_season: mediafile.tv_season,
+        tv_episode: mediafile.tv_episode,
         video_format: mediafile.video_format,
         video_codec: mediafile.video_codec,
         audio_codec: mediafile.audio_codec,

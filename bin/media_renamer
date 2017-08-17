@@ -52,25 +52,22 @@ class MediaRenamerCLI < Thor
     files.each do |file|
       log.info("Processing #{File.basename(file)}")
       mediafile = MediaRenamer::Mediafile.new(file)
-      log.debug(mediafile.attributes)
       case mediafile.type
       when :video
         if mediafile.duration < MediaRenamer::Mediafile::MIN_TV_TIME
+          p "Deleting video file duration is too short #{mediafile.duration}"
           MediaRenamer::Utils.delete_file(file, params)
         end
 
         show = params[:tv] ? MediaRenamer::TMDB.find_tv(mediafile.title) : MediaRenamer::TMDB.find_movie(mediafile.title)
-        puts "Show is #{show}"
         if show
-          p show
           # for now, just use first show found          
           target_file = if params[:tv] 
             MediaRenamer::Templates.render_tv(show.first, mediafile, params) 
           else
             MediaRenamer::Templates.render_movie(show.first, mediafile, params)
           end
-          p target_file
-          #MediaRenamer::Utils.move_file(file, target_file, params)
+          MediaRenamer::Utils.move_file(file, target_file, params)
         else
           log.info("[Failed] Could not find show for #{mediafile.title}")
         end
@@ -120,7 +117,7 @@ class MediaRenamerCLI < Thor
     target_path = File.expand_path(options.fetch(:target_path, root_path))
     target_path = target_path.gsub(/\/\z/,'') #strip off ending /
     # array of files to be processed
-    files       = File.file?(file) ? [file] : Dir.glob(File.join(file, "/**/*")).sort.reverse
+    files       = File.file?(file) ? [file] : Dir.glob(File.join(escape_glob(file), "/**/*")).sort.reverse
     
     params = {
       orig_path: orig_path,
@@ -135,6 +132,10 @@ class MediaRenamerCLI < Thor
     }
     log.debug JSON.pretty_generate(params) if debug
     params
+  end
+
+  def escape_glob(s)
+    s.gsub(/[\\\{\}\[\]\*\?]/) { |x| "\\"+x }
   end
 end
 

@@ -9,5 +9,5 @@ MOVIE_TEMPLATE: "\
 {{title}} ({{year}}) {% if tag %}{{tags}} {% endif %}[{{video_format}}] \
 {% if video_codec == 'HEVC' %}[HEVC] {%endif%}\
 [{{audio_codec}}].{{ext}}"
-TV_TEMPLATE: "{{target_path}}/TV/{{title}}/{{title}} Season {{tv_season}}/\
+TV_TEMPLATE: "{{target_path}}/{{title}}/{{title}} S{{tv_season}}/\
 {{title}} S{{tv_season}}E{{tv_episode}} [{{video_format}}].{{ext}}"
