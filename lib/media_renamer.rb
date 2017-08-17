@@ -1,13 +1,12 @@
 $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'yaml'
-require 'tmdb-api'
 require 'liquid'
 require 'logger'
 require 'active_support'
+require 'tmdb-api'
 require "media_renamer/version"
 require "media_renamer/templates"
-require "media_renamer/renamer"
 require "media_renamer/tmdb"
 require "media_renamer/movie"
 require "media_renamer/tv"
@@ -15,7 +14,6 @@ require 'media_renamer/file_parser'
 
 require "media_renamer/mediafile"
 require "media_renamer/utils"
-require "media_renamer/file_parser"
 
 
 

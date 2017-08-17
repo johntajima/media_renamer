@@ -10,7 +10,7 @@ module MediaRenamer
     end
 
     def find_tv(query, options = {})
-      results = TMDb::Movie.search(query, options)
+      results = TMDb::TV.search(query, options)
       sleep(0.5) # handle this better
       results.map {|entry| MediaRenamer::TV.new(entry)}
     end

@@ -34,6 +34,11 @@ class MediaRenamerCLI < Thor
                 type: :boolean,
                 default: false,
                 desc: "Dry run - don't actually make changes"
+  method_option :tv,
+                type: :boolean,
+                default: false,
+                desc: "TV shows - video files TV shows"
+
 
 
 
@@ -45,27 +50,32 @@ class MediaRenamerCLI < Thor
     files.reject! {|f| f.include?(MediaRenamer::Utils::DELETEABLE_PATH)}
 
     files.each do |file|
-      log.info("Processing #{file}")      
+      log.info("Processing #{File.basename(file)}")
       mediafile = MediaRenamer::Mediafile.new(file)
-      p mediafile.attributes
+      log.debug(mediafile.attributes)
       case mediafile.type
-      when :movie
-        if movie = MediaRenamer::TMDB.find_movie(mediafile.title)
-          # render available choices
-          # get selection
-          new_file = MediaRenamer::Templates.render_movie(movie.first, mediafile, params)
-          MediaRenamer::Utils.move_file(file, new_file, params)
+      when :video
+        if mediafile.duration < MediaRenamer::Mediafile::MIN_TV_TIME
+          MediaRenamer::Utils.delete_file(file, params)
+        end
+
+        show = params[:tv] ? MediaRenamer::TMDB.find_tv(mediafile.title) : MediaRenamer::TMDB.find_movie(mediafile.title)
+        puts "Show is #{show}"
+        if show
+          p show
+          # for now, just use first show found          
+          target_file = if params[:tv] 
+            MediaRenamer::Templates.render_tv(show.first, mediafile, params) 
+          else
+            MediaRenamer::Templates.render_movie(show.first, mediafile, params)
+          end
+          p target_file
+          #MediaRenamer::Utils.move_file(file, target_file, params)
         else
-          log.info("[Failed] Movie lookup failed. Skipping. #{mediafile.filename} #{mediafile.attributes}")
+          log.info("[Failed] Could not find show for #{mediafile.title}")
         end
-      when :tv
-        if tv = MediaRenamer::TMDB.find_tv(mediafile.title)
-          new_file = MediaRenamer::Templates.render_tv(tv.first, mediafile, params)
-          #MediaRenamer::Utils.move_file(file, new_file, params)
-          p new_file
-        end
-          log.debug(mediafile.to_json)
       when :audio
+          log.debug("Audio file - skip.")
       when :directory
         if file == params[:root_path]
           next
@@ -120,6 +130,7 @@ class MediaRenamerCLI < Thor
       delete_files: options.fetch(:delete_files),
       confirmation_required: !options.fetch(:force),
       preview: options.fetch(:preview),
+      tv: options.fetch(:tv),
       files: files
     }
     log.debug JSON.pretty_generate(params) if debug

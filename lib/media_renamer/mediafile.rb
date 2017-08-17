@@ -13,19 +13,18 @@ module MediaRenamer
                 :video_format, :video_codec, :audio_codec, :tags
 
     def initialize(filename)
-      @filename = File.expand_path(filename)
-      @file     = sanitize_filename(filename)
-      @ext      = File.extname(@filename).gsub(/\./,'')
-      @type     = get_file_type(@filename)
-
-      @title    = extract_title(@file)
-      @year     = extract_year(@file)
-      @tags     = extract_tags(@file)
-      if type == :tv
-        @tv_season = extract_season(@file)
+      @filename   = File.expand_path(filename)
+      @file       = sanitize_filename(filename)
+      @ext        = File.extname(@filename).gsub(/\./,'')
+      @type       = get_file_type(@filename)
+      if video?
+        @title      = extract_title(@file)
+        @year       = extract_year(@file)
+        @tags       = extract_tags(@file)
+        @tv_season  = extract_season(@file)
         @tv_episode = extract_episode(@file)
+        extract_media_info
       end
-      extract_media_info if video?
     end
 
     def video?
@@ -41,12 +40,15 @@ module MediaRenamer
     end
 
     def attributes
-      {
+      data = {
         type: type,
         filename: filename,
         ext: ext,
         exists: exists?,
-        directory: directory?,
+        directory: directory?
+      }
+      
+      data.merge!({
         title: title,
         year: year,
         tv_season: tv_season,
@@ -54,19 +56,20 @@ module MediaRenamer
         video_format: video_format,
         video_codec: video_codec,
         audio_codec: audio_codec,
+        duration: duration,
         tags: tags
-      }
+      }) if video?
     end
 
     def to_liquid
       attributes.stringify_keys
     end
 
-    private
-
     def duration
       mediainfo.duration
-    end      
+    end
+
+    private
 
     def extract_media_info
       @video_format ||= MediaRenamer::Utils.video_format(mediainfo.width, mediainfo.height)
@@ -75,7 +78,7 @@ module MediaRenamer
     end
 
     def mediainfo
-      @mediainfo ||= exists? ? FFMPEG::Movie.new(filename) : OpenStruct.new
+      @mediainfo ||= (exists? && video?) ? FFMPEG::Movie.new(filename) : OpenStruct.new
     end
   end
 

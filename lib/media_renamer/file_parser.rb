@@ -37,8 +37,8 @@ module MediaRenamer
     SUB_EXT   = %w| sub srt idx |
     IMAGE_EXT = %w| jpeg jpg bmp png tiff|
 
-    MIN_MOVIE_TIME = 60 * 60 # 1hr
-    MIN_TV_TIME    = 20 * 60 # 20m
+    MIN_MOVIE_TIME = 100 * 60 # 1.5hr
+    MIN_TV_TIME    = 24 * 60  # 24m
 
     def sanitize_filename(filename)
       # remove extension
@@ -59,13 +59,7 @@ module MediaRenamer
       ext = File.extname(filename).gsub(/\./,'')
       case
       when VIDEO_EXT.include?(ext)
-        if duration >= MIN_MOVIE_TIME
-          :movie
-        elsif duration >= MIN_TV_TIME
-          :tv
-        else
-          :unknown 
-        end
+        :video
       when AUDIO_EXT.include?(ext)
         :audio
       when SUB_EXT.include?(ext)
@@ -115,6 +109,9 @@ module MediaRenamer
       
       # get filename before any stop words
       filename = filename.downcase.split(/#{TITLE_STOP_WORDS.join("|")}/).first || ""
+
+      # get filename before any tv season/episode info
+      filename = filename.split(/(\A|\s)s\d{1,2}/).first
 
       # get filename before any tags
       TAGS.each_pair do |tag, _|
