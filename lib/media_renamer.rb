@@ -11,11 +11,8 @@ require "media_renamer/tmdb"
 require "media_renamer/movie"
 require "media_renamer/tv"
 require 'media_renamer/file_parser'
-
 require "media_renamer/mediafile"
 require "media_renamer/utils"
-
-
 
 module MediaRenamer
 

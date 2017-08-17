@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
-$LOAD_PATH.unshift File.dirname(__FILE__)
-
-require 'rubygems'
+require "bundler/setup"
+require "media_renamer"
 require 'thor'
-require_relative '../lib/media_renamer'
+
 
 class MediaRenamerCLI < Thor
+
 
   desc "rename <file>|<path>", "Renames media files found in path or specific file"
   method_option :force, 
