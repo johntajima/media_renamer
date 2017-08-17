@@ -57,6 +57,7 @@ class MediaRenamerCLI < Thor
         if mediafile.duration < MediaRenamer::Mediafile::MIN_TV_TIME
           p "Deleting video file duration is too short #{mediafile.duration}"
           MediaRenamer::Utils.delete_file(file, params)
+          next
         end
 
         show = params[:tv] ? MediaRenamer::TMDB.find_tv(mediafile.title) : MediaRenamer::TMDB.find_movie(mediafile.title)
@@ -93,11 +94,6 @@ class MediaRenamerCLI < Thor
   def log
     MediaRenamer.logger
   end
-
-
-  def process_change()
-  end
-
 
   def process_args(file, options)
     file = File.expand_path(file)    

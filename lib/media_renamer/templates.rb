@@ -8,7 +8,7 @@ module MediaRenamer
     end
 
     def tv_template
-      @tv_template ||= Liquid::Template.parse(SETTINGS['TV_TEMPLATE'],error_mode: :strict)
+      @tv_template ||= Liquid::Template.parse(SETTINGS['TV_TEMPLATE'], error_mode: :strict)
     end
 
     def render_movie(movie, mediafile, options = {})
@@ -39,7 +39,6 @@ module MediaRenamer
         target_path: options[:target_path]
       }
       tv_template.render(attributes.stringify_keys)
-
     end
   end
 

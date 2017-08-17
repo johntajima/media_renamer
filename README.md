@@ -71,8 +71,8 @@ Variables are:
 
 ### TO DO
 
-Only movies are recognized right now.
-TV shows will be coming soon.
+~Only movies are recognized right now.~
+~TV shows will be coming soon.~ Done.
 
 Audio files are recognized but skipped.
 

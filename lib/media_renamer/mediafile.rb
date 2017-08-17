@@ -48,17 +48,7 @@ module MediaRenamer
         directory: directory?
       }
       
-      data.merge!({
-        title: title,
-        year: year,
-        tv_season: tv_season,
-        tv_episode: tv_episode,
-        video_format: video_format,
-        video_codec: video_codec,
-        audio_codec: audio_codec,
-        duration: duration,
-        tags: tags
-      }) if video?
+      data.merge!(video_attributes) if video?
     end
 
     def to_liquid
@@ -69,7 +59,22 @@ module MediaRenamer
       mediainfo.duration
     end
 
+
     private
+
+    def video_attributes
+      {
+        title: title,
+        year: year,
+        tv_season: tv_season,
+        tv_episode: tv_episode,
+        video_format: video_format,
+        video_codec: video_codec,
+        audio_codec: audio_codec,
+        duration: duration,
+        tags: tags
+      }
+    end
 
     def extract_media_info
       @video_format ||= MediaRenamer::Utils.video_format(mediainfo.width, mediainfo.height)
