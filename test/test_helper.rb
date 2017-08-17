@@ -18,5 +18,19 @@ class ActiveSupport::TestCase
     File.join(FILE_PATH, file)
   end
 
+  def mock_mediainfo(params)
+    orig_params = {
+      width: 1920, 
+      height: 1080, 
+      video_codec: 'h264', 
+      audio_codec: "aac", 
+      audio_channels: 2,
+      duration: 100
+    }
+    obj = mock()
+    obj.stubs(orig_params.merge(params))
+    FFMPEG::Movie.stubs(:new).returns(obj)
+  end
+
 end
 

@@ -16,6 +16,7 @@ module MediaRenamer
     # 480p    640x480
     # 360p    480x360
     def video_format(width, height)
+      return unless width && width
       if width >= 7600 || height >= 4300
         "8K"
       elsif width >= 4000

@@ -8,27 +8,28 @@ require 'active_support'
 require "media_renamer/version"
 require "media_renamer/templates"
 require "media_renamer/renamer"
+require "media_renamer/media"
+require "media_renamer/movie"
+require "media_renamer/tv"
+require 'media_renamer/file_parser'
+
 require "media_renamer/mediafile"
 require "media_renamer/utils"
 require "media_renamer/file_parser"
 
-require "media_renamer/movie"
-require "media_renamer/agents/tmdb_agent"
 
 
 module MediaRenamer
 
-  USER_CONFIG    = "~/.media_renamer.yml"
+  USER_CONFIG    = File.expand_path("~/.media_renamer.yml")
   DEFAULT_CONFIG = File.join(File.dirname(__FILE__), "../config/media_renamer.yml")
   SETTINGS ||= begin
     default_config = YAML.load(File.open(DEFAULT_CONFIG).read)
-    custom_config = if File.exist?(File.expand_path(USER_CONFIG))
-      YAML.load(File.open(File.expand_path(USER_CONFIG)).read)
-    else
-      {}
-    end
+    custom_config  = File.exist?(USER_CONFIG) ? YAML.load(File.open(USER_CONFIG).read) : {}
     default_config.merge(custom_config)
   end
+
+  TMDb.api_key = MediaRenamer::SETTINGS['TMDB_API']
 
   extend self
 

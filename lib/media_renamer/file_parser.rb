@@ -1,13 +1,6 @@
 module MediaRenamer
 
-  # FileParser
-  # given a filename,
-  # generate most likely title, plus alternates
-  # extract out possible year and tags information
-
-  class FileParser
-
-    attr_reader :title, :year, :tag
+  module FileParser
 
     TITLE_STOP_WORDS = %w| 
       xvid dvdrip dvdscr screener bluray brrip divx hdrip bdrip bdremux hdtv
@@ -38,12 +31,50 @@ module MediaRenamer
       "fanedit"                  => "Fan Edit",
       "special edition"          => "Special Edition"
     }
+    
+    VIDEO_EXT = %w| avi mp4 mkv mov divx|
+    AUDIO_EXT = %w| ogg mp3 aac flac |
+    SUB_EXT   = %w| sub srt idx |
+    IMAGE_EXT = %w| jpeg jpg bmp png tiff|
 
-    def initialize(filename)
-      @filename = sanitize(filename) || ""
-      @title = extract_title(@filename)
-      @year = extract_year(@filename)
-      @tag = extract_tag(@filename)
+    MIN_MOVIE_TIME = 60 * 60 # 1hr
+    MIN_TV_TIME    = 20 * 60 # 20m
+
+    def sanitize_filename(filename)
+      # remove extension
+      filename = File.basename(filename, ".*")
+      # convert . to spaces
+      filename = filename.gsub(/\./,' ')
+      # add space infront of [] or ()
+      filename = filename.gsub(/\[/, " [").gsub(/\(/, " (")
+
+      # remove extra spaces
+      filename = filename.gsub(/\s+/, ' ')
+      filename.downcase
+    end
+
+    def get_file_type(filename)
+      return :unknown if !File.exist?(filename)
+      return :directory if File.directory?(filename)
+      ext = File.extname(filename).gsub(/\./,'')
+      case
+      when VIDEO_EXT.include?(ext)
+        if duration >= MIN_MOVIE_TIME
+          :movie
+        elsif duration >= MIN_TV_TIME
+          :tv
+        else
+          :unknown 
+        end
+      when AUDIO_EXT.include?(ext)
+        :audio
+      when SUB_EXT.include?(ext)
+        :subtitle
+      when IMAGE_EXT.include?(ext)
+        :image
+      else
+        :unknown
+      end
     end
 
     def extract_year(filename)
@@ -106,30 +137,30 @@ module MediaRenamer
       filename.strip.titleize
     end
 
-    def extract_tag(filename)
+    def extract_tags(filename)
       tags = TAGS.map do |text, tag|
         tag if matches = filename.match(/(\A|\s|\(|\[)#{text}(\s|\z)/)
       end.compact.uniq.sort.join(" ")
       tags.blank? ? nil : tags
     end
 
-
-    private
-
-    def sanitize(filename)
-      # remove extension
-      filename = File.basename(filename, ".*")
-      # convert . to spaces
-      filename = filename.gsub(/\./,' ')
-      # add space infront of [] or ()
-      filename = filename.gsub(/\[/, " [").gsub(/\(/, " (")
-
-      # remove extra spaces
-      filename = filename.gsub(/\s+/, ' ')
-      filename.downcase
+    def extract_season(filename)
+      if matches = tv_match(filename)
+        matches[2].to_i
+      end
     end
 
+    def extract_episode(filename)
+      if matches = tv_match(filename)
+        matches[4].to_i
+      end
+    end
+
+    def tv_match(filename)
+      filename.match(/\s(s|season)(\d{1,2})\s?(e|episode)(\d{1,2})/)
+    end
 
   end
+
 
 end

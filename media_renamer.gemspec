@@ -34,11 +34,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest", "= 5.10.1"
   spec.add_development_dependency "mocha"
-  spec.add_dependency "activesupport", "= 5.0.1"
+  spec.add_dependency "activesupport"
 
   spec.add_dependency "streamio-ffmpeg"
   
-  spec.add_dependency "tmdb-api"
+ # spec.add_dependency "tmdb-api"
   spec.add_dependency "liquid"
   spec.add_dependency "thor"
 
