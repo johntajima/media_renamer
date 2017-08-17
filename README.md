@@ -36,6 +36,7 @@ Or install it yourself as:
                                                    (default moves them to ~/.deleteable)
           [--debug], [--no-debug]                # Debug mode
           [--preview], [--no-preview]            # Dry run - don't actually make changes
+      --tv,                                      # video files are assumed TV shows
 
 -f will skip the confirmation step. With confirmation, Y or enter will confirm the action, any other character will skip that action, q or Ctrl-C will quit.
 
