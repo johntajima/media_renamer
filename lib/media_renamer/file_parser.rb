@@ -111,8 +111,7 @@ module MediaRenamer
       filename = filename.downcase.split(/#{TITLE_STOP_WORDS.join("|")}/).first || ""
 
       # get filename before any tv season/episode info
-      filename = filename.split(/(\A|\s)s\d{1,2}/).first
-
+      filename = filename.split(/(\A|\s)s\d{1,2}/).first || filename
       # get filename before any tags
       TAGS.each_pair do |tag, _|
         filename = filename.split(/#{tag}/).first || filename
