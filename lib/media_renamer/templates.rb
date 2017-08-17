@@ -18,14 +18,28 @@ module MediaRenamer
         video_format: mediafile.video_format,
         video_codec: mediafile.video_codec,
         audio_codec: mediafile.audio_codec,
-        tag: mediafile.tag,
+        tags: mediafile.tags,
         ext: mediafile.ext,
         target_path: options[:target_path]
       }
       movie_template.render(attributes.stringify_keys)
     end
 
-    def render_tv()
+    def render_tv(tv, mediafile, options = {})
+      attributes = {
+        title: tv.title,
+        year: tv.year,
+        tv_season: tv.tv_season,
+        tv_episode: tv.tv_episode,
+        video_format: mediafile.video_format,
+        video_codec: mediafile.video_codec,
+        audio_codec: mediafile.audio_codec,
+        tags: mediafile.tags,
+        ext: mediafile.ext,
+        target_path: options[:target_path]
+      }
+      tv_template.render(attributes.stringify_keys)
+
     end
   end
 

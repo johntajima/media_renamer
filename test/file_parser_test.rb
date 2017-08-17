@@ -103,15 +103,15 @@ class MediaRenamer::FileParserTest < ActiveSupport::TestCase
   test "#extract_season returns season number when filename contains season info" do
     f = "The Newsroom S01E2.avi"
     @f = TestMedia.new(f)
-    assert_equal 1, @f.extract_season(@f.filename)
+    assert_equal "01", @f.extract_season(@f.filename)
 
     f = "The Newsroom S1E2.avi"
     @f = TestMedia.new(f)
-    assert_equal 1, @f.extract_season(@f.filename)
+    assert_equal "01", @f.extract_season(@f.filename)
 
     f = "The Newsroom S01 E2.avi"
     @f = TestMedia.new(f)
-    assert_equal 1, @f.extract_season(@f.filename)
+    assert_equal "01", @f.extract_season(@f.filename)
   end
 
   # extract episode
@@ -119,20 +119,19 @@ class MediaRenamer::FileParserTest < ActiveSupport::TestCase
   test "#extract_episode returns season number when filename contains season info" do
     f = "The Newsroom S01E12.avi"
     @f = TestMedia.new(f)
-    assert_equal 12, @f.extract_episode(@f.filename)
+    assert_equal "12", @f.extract_episode(@f.filename)
 
     f = "The Newsroom S1E2.avi"
     @f = TestMedia.new(f)
-    assert_equal 2, @f.extract_episode(@f.filename)
+    assert_equal "02", @f.extract_episode(@f.filename)
 
     f = "The Newsroom S01 E2.avi"
     @f = TestMedia.new(f)
-    assert_equal 2, @f.extract_episode(@f.filename)
+    assert_equal "02", @f.extract_episode(@f.filename)
 
     f = "The Newsroom S01 E02.avi"
     @f = TestMedia.new(f)
-    assert_equal 2, @f.extract_episode(@f.filename)
+    assert_equal "02", @f.extract_episode(@f.filename)
   end
-
 
 end

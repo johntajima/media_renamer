@@ -146,13 +146,13 @@ module MediaRenamer
 
     def extract_season(filename)
       if matches = tv_match(filename)
-        matches[2].to_i
+        "%02d" % matches[2].to_i
       end
     end
 
     def extract_episode(filename)
       if matches = tv_match(filename)
-        matches[4].to_i
+        "%02d" % matches[4].to_i
       end
     end
 

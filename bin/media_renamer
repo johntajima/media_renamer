@@ -47,18 +47,24 @@ class MediaRenamerCLI < Thor
     files.each do |file|
       log.info("Processing #{file}")      
       mediafile = MediaRenamer::Mediafile.new(file)
+      p mediafile.attributes
       case mediafile.type
       when :movie
-        if movie = mediafile.movie
+        if movie = MediaRenamer::TMDB.find_movie(mediafile.title)
           # render available choices
           # get selection
-          new_file = MediaRenamer::Templates.render_movie(movie, mediafile, params)
+          new_file = MediaRenamer::Templates.render_movie(movie.first, mediafile, params)
           MediaRenamer::Utils.move_file(file, new_file, params)
         else
           log.info("[Failed] Movie lookup failed. Skipping. #{mediafile.filename} #{mediafile.attributes}")
         end
       when :tv
-        log.debug(mediafile.to_json)
+        if tv = MediaRenamer::TMDB.find_tv(mediafile.title)
+          new_file = MediaRenamer::Templates.render_tv(tv.first, mediafile, params)
+          #MediaRenamer::Utils.move_file(file, new_file, params)
+          p new_file
+        end
+          log.debug(mediafile.to_json)
       when :audio
       when :directory
         if file == params[:root_path]

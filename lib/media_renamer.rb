@@ -8,7 +8,7 @@ require 'active_support'
 require "media_renamer/version"
 require "media_renamer/templates"
 require "media_renamer/renamer"
-require "media_renamer/media"
+require "media_renamer/tmdb"
 require "media_renamer/movie"
 require "media_renamer/tv"
 require 'media_renamer/file_parser'
