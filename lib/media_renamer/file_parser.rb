@@ -7,7 +7,7 @@ module MediaRenamer
       h264 h265 hevc 
       cd1 cd2 
       rarbg stv yify
-      1080p 720p |
+      1080p 720p 2160p|
 
     TAGS = {
       "extended cut"             => "Extended",
