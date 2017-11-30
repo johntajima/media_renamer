@@ -19,10 +19,8 @@ module MediaRenamer
       return unless width && width
       if width >= 7600 || height >= 4300
         "8K"
-      elsif width >= 4000
+      elsif width >= 3800 || height > 2100
         "4K"
-      elsif width >= 2000
-        "2K"
       elsif width >= 1900 || height >= 1000
         "1080p"
       elsif width >= 1200 || height >= 700

@@ -1,8 +1,8 @@
 TMDB_API:
 MOVIE_TEMPLATE: "\
 {{target_path}}/\
-{% if video_codec == 'HEVC'%}Movies_HEVC/\
-{% elsif video_format == '2K' or video_format == '4K' %}Movies_HQ/\
+{% if video_format == '2K' or video_format == '4K' %}Movies_HQ/\
+{% elsif video_codec == 'HEVC'%}Movies_HEVC/\
 {% else %}Movies/\
 {%endif%}\
 {{title}} ({{year}}) {% if tag %}{{tags}} {% endif %}[{{video_format}}]/\
