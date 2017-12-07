@@ -64,7 +64,7 @@ module MediaRenamer
     def move_file(source, dest, options)
       return if source == dest
       dest_path = File.dirname(dest)
-      if confirmation("mv #{source}\n => #{dest}", options)
+      if confirmation("mv \"#{File.basename(source)}\"\n=> \"#{dest}\"", options)
         if !File.directory?(dest_path)
           FileUtils.mkdir_p dest_path, verbose: true, noop: options[:preview]
         end
@@ -77,7 +77,7 @@ module MediaRenamer
 
       dir_files = Dir.entries(file).reject {|x| x.start_with?('.')}
       if dir_files.count > 0
-        p "dir #{file} not empty #{dir_files}"
+        log.debug "DIRECTORY \"#{file}\" not empty #{dir_files.count} files"
         return
       end
       if confirmation("rmdir #{file}", options)
@@ -103,7 +103,7 @@ module MediaRenamer
 
     def confirmation(msg, options)
       return true unless options[:confirmation_required] == true
-      puts "[CONFIRM] #{msg}? [Y/n/q]"
+      puts "#{msg}?\nCONFIRM? [Y/n/q]"
       value = STDIN.getch
       case value
       when 'q', "Q", "\u0003"
@@ -113,9 +113,16 @@ module MediaRenamer
         puts
         true
       else
-        puts "Skipping."
+        log.debug "Skipping."
         false
       end
+    end
+
+
+    private
+
+    def log
+      MediaRenamer.logger
     end
 
   end

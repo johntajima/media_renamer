@@ -50,7 +50,7 @@ class MediaRenamerCLI < Thor
     files.reject! {|f| f.include?(MediaRenamer::Utils::DELETEABLE_PATH)}
 
     files.each do |file|
-      log.info("Processing #{File.basename(file)}")
+      log.info("Processing \"#{File.basename(file)}\"")
       mediafile = MediaRenamer::Mediafile.new(file)
       case mediafile.type
       when :video
@@ -83,7 +83,7 @@ class MediaRenamerCLI < Thor
           MediaRenamer::Utils.delete_dir(file, params)
         end
       else
-        MediaRenamer::Utils.delete_file(file, params)
+        MediaRenamer::Utils.delete_file(file, params.merge(confirmation_required: false))
       end
     end
   end

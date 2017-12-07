@@ -4,10 +4,12 @@ module MediaRenamer
 
     TITLE_STOP_WORDS = %w| 
       xvid dvdrip dvdscr screener bluray brrip divx hdrip bdrip bdremux hdtv
-      h264 h265 hevc 
+      h264 h265 hevc hevc10 dolby atmos
       cd1 cd2 
+      UHD
       rarbg stv yify
-      1080p 720p 2160p|
+      1080p 720p 2160p
+      Multi|
 
     TAGS = {
       "extended cut"             => "Extended",
@@ -156,6 +158,12 @@ module MediaRenamer
       filename.match(/\s(s|season)(\d{1,2})\s?(e|episode)(\d{1,2})/)
     end
 
+
+    private
+
+    def log
+      MediaRenamer.logger
+    end
   end
 
 
