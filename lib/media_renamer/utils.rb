@@ -60,7 +60,7 @@ module MediaRenamer
     end
 
 
-    # move file from source => dest
+    # move file from source => dest (rename file)
     def move_file(source, dest, options)
       return if source == dest
       dest_path = File.dirname(dest)
@@ -73,15 +73,14 @@ module MediaRenamer
     end
 
     def delete_dir(file, options)
-      return unless File.exist?(file) 
-
+      return unless File.exist?(file)
       dir_files = Dir.entries(file).reject {|x| x.start_with?('.')}
       if dir_files.count > 0
-        log.debug "DIRECTORY \"#{file}\" not empty #{dir_files.count} files"
+        log.debug "Path [#{file}] contains #{dir_files.count} files...skipping"
         return
       end
       if confirmation("rmdir #{file}", options)
-        FileUtils.rm_rf file, verbose: true, noop: options[:preview]
+        FileUtils.rm_rf file, verbose: true,noop: options[:preview]
       end
     end
 
@@ -101,14 +100,77 @@ module MediaRenamer
       File.join(options[:orig_path], DELETEABLE_PATH, path)
     end
 
+    def rename_file(mediafile, file, params)
+      if params[:tv]
+        lookup = MediaRenamer::TMDB.method(:find_tv)
+        renderer = MediaRenamer::Templates.method(:render_tv)
+      else
+        lookup = MediaRenamer::TMDB.method(:find_movie)
+        renderer = MediaRenamer::Templates.method(:render_movie)
+      end
+ 
+      results = lookup.call(mediafile.title)
+      results = manual_lookup(lookup) if results.count == 0
+      target_files = results.map {|show| renderer.call(show, mediafile, params) }
+
+      chosen_file = case results.count
+        when 0 then nil
+        when 1 then target_files.first
+        else
+          choose_option(target_files)
+        end
+
+      if chosen_file
+        MediaRenamer::Utils.move_file(file, chosen_file, params)
+      else
+        puts "No valid result found. Skipping."
+      end
+    end
+
+
+    private
+
+    # allow user to manually enter new tv/movie name
+    def manual_lookup(lookup)
+      puts "Enter movie/tv name, eg: Star Wars"
+      video_name = STDIN.gets.chomp
+      return if video_name.blank?
+      target_files = lookup.call(video_name)
+    end
+
+    # ([1], 2, 3, 4, 5), [N]one of the above, [S]kip
+    def choose_option(files)
+      files = files.slice(0,5)  # just take first 5
+      files.to_enum.with_index(1) do |filename, index|
+        puts "[#{index}] #{File.basename(filename)}"
+      end
+      puts "[N] None of the above (lookup manually)"
+      puts "> Pick: 1*, #{(2..files.count).to_a.join(", ")}, [N]one of the above, [S]kip: "
+      value = STDIN.getch
+      case value
+      when '1','2','3','4','5'
+        i = value.to_i
+        puts "---> #{files[i]}"
+        return files[i]
+      when "\r", "\n"
+        puts "---> #{files.first}"
+        return files.first
+      when "n", "N"
+        # allow manual selection
+      else
+        log.debug "None chosen. Skipping."
+        nil
+      end
+    end
+
     def confirmation(msg, options)
       return true unless options[:confirmation_required] == true
-      puts "#{msg}?\nCONFIRM? [Y/n/q]"
+      puts "> #{msg}?\nCONFIRM? [Y/n/q]"
       value = STDIN.getch
       case value
       when 'q', "Q", "\u0003"
         puts
-        exit
+        abort("Quitting...")
       when 'y', "Y", "\r", "\n"
         puts
         true
@@ -119,7 +181,6 @@ module MediaRenamer
     end
 
 
-    private
 
     def log
       MediaRenamer.logger

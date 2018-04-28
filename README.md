@@ -27,7 +27,7 @@ Or install it yourself as:
     media_renamer rename <path|file> [options]
 
     Options:
-      -f, [--force]                              # Force renaming, 
+      -f, [--force]                              # Force renaming, deleting non-video files
                                                    without prompting for confirmation
       -p, [--root-path=ROOT_PATH]                # Root path (default is path passed in)
       -t, [--target-path=TARGET_PATH]            # Specify target directory to save 
@@ -80,3 +80,11 @@ Audio files are recognized but skipped.
 All other files (including sub files) are considered deleteable. This means image files, sub files, text files and all others are considered deleteable.
 
 Tests are not working or need updating!
+
+
+# to do
+
+- flag auto delete non movie files and empty subdirectories
+- display options to pick file name (1-x) 
+- if no movie name is found w/ given filename, use parent directory name instead
+- if no movie name if found, the warn and skip to next file

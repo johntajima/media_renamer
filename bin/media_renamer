@@ -13,7 +13,7 @@ class MediaRenamerCLI < Thor
                 aliases: '-f', 
                 default: false,
                 type: :boolean,
-                desc: "Force renaming, without prompting for confirmation"
+                desc: "Force delete non-video files and paths, without prompting for confirmation"
   method_option :root_path, 
                 aliases: '-p',
                 type: :string,
@@ -48,44 +48,28 @@ class MediaRenamerCLI < Thor
     log.info("[Rename] Starting...found #{files.count} files/paths")
 
     files.reject! {|f| f.include?(MediaRenamer::Utils::DELETEABLE_PATH)}
-
     files.each do |file|
-      log.info("Processing \"#{File.basename(file)}\"")
       mediafile = MediaRenamer::Mediafile.new(file)
       case mediafile.type
+      when :directory
+        next if file == params[:root_path]
+        next if file.include?("_deleteable")
+        MediaRenamer::Utils.delete_dir(file, params)
       when :video
-        if mediafile.duration < MediaRenamer::Mediafile::MIN_TV_TIME
-          p "Deleting video file duration is too short #{mediafile.duration}"
-          MediaRenamer::Utils.delete_file(file, params)
-          next
-        end
+        puts "--------------------------------------------------------------------------------"
+        puts "Processing [#{file}]\n\n"
 
-        show = params[:tv] ? MediaRenamer::TMDB.find_tv(mediafile.title) : MediaRenamer::TMDB.find_movie(mediafile.title)
-        if show
-          # for now, just use first show found          
-          target_file = if params[:tv] 
-            MediaRenamer::Templates.render_tv(show.first, mediafile, params) 
-          else
-            MediaRenamer::Templates.render_movie(show.first, mediafile, params)
-          end
-          MediaRenamer::Utils.move_file(file, target_file, params)
+        if mediafile.duration < MediaRenamer::Mediafile::MIN_TV_TIME
+          MediaRenamer::Utils.delete_file(file, params) 
         else
-          log.info("[Failed] Could not find show for #{mediafile.title}")
+          MediaRenamer::Utils.rename_file(mediafile, file, params)
         end
       when :audio
           log.debug("Audio file - skip.")
-      when :directory
-        if file == params[:root_path]
-          next
-        elsif file.include?("_deleteable")
-          next
-        else
-          MediaRenamer::Utils.delete_dir(file, params)
-        end
       else
         MediaRenamer::Utils.delete_file(file, params.merge(confirmation_required: false))
       end
-    end
+    end    
   end
 
 
@@ -103,7 +87,6 @@ class MediaRenamerCLI < Thor
     end
 
     debug = options.fetch(:debug)
-
     orig_path = File.directory?(file) ? file : File.dirname(file)
     # set root path
     root_path   = File.expand_path(options.fetch(:root_path, File.directory?(file) ? file : File.dirname(file)))
