@@ -5,6 +5,8 @@ module MediaRenamer
 
     DELETEABLE_PATH = "/_deleteable"
 
+    MAX_FILES = 5
+
     extend self
 
     # given a width and height, returns back video format
@@ -100,28 +102,41 @@ module MediaRenamer
       File.join(options[:orig_path], DELETEABLE_PATH, path)
     end
 
-    def rename_file(mediafile, file, params)
-      if params[:tv]
-        lookup = MediaRenamer::TMDB.method(:find_tv)
-        renderer = MediaRenamer::Templates.method(:render_tv)
-      else
-        lookup = MediaRenamer::TMDB.method(:find_movie)
-        renderer = MediaRenamer::Templates.method(:render_movie)
-      end
- 
-      results = lookup.call(mediafile.title)
-      results = manual_lookup(lookup) if results.count == 0
-      target_files = results.map {|show| renderer.call(show, mediafile, params) }
 
-      chosen_file = case results.count
-        when 0 then nil
-        when 1 then target_files.first
-        else
-          choose_option(target_files)
+    def rename_file(mediafile, filename, params)
+      query_type  = params[:tv] ? :find_tv : :find_movie
+      render_type = params[:tv] ? :render_tv : :render_movie
+      results     = MediaRenamer::TMDB.method(query_type).call(mediafile.title)
+      chosen_file = nil
+      chosen      = false
+
+      while !chosen do
+        if results.count == 0
+          results = manual_lookup(query_type) 
         end
+        target_files = results.map {|show| MediaRenamer::Templates.method(render_type).call(show, mediafile, params) }
+        
+        case selected = display_and_select_selections(target_files)
+        when 0
+          # skip all together
+          chosen = true
+          chosen_file = nil
+        when 1..5
+          # pick one of the options
+          if selected > (target_files.count + 1)
+            puts "Invalid option. Try again."
+          else
+            chosen_file = target_files[selected-1]
+            chosen = true
+          end
+        else
+          # none of the above - do manual lookup
+          results = []
+        end
+      end
 
       if chosen_file
-        MediaRenamer::Utils.move_file(file, chosen_file, params)
+        MediaRenamer::Utils.move_file(filename, chosen_file, params)
       else
         puts "No valid result found. Skipping."
       end
@@ -130,37 +145,38 @@ module MediaRenamer
 
     private
 
-    # allow user to manually enter new tv/movie name
-    def manual_lookup(lookup)
-      puts "Enter movie/tv name, eg: Star Wars"
-      video_name = STDIN.gets.chomp
-      return if video_name.blank?
-      target_files = lookup.call(video_name)
-    end
-
-    # ([1], 2, 3, 4, 5), [N]one of the above, [S]kip
-    def choose_option(files)
-      files = files.slice(0,5)  # just take first 5
+    def display_and_select_selections(files)
+      files = files.slice(0, MAX_FILES)
       files.to_enum.with_index(1) do |filename, index|
         puts "[#{index}] #{File.basename(filename)}"
       end
-      puts "[N] None of the above (lookup manually)"
-      puts "> Pick: 1*, #{(2..files.count).to_a.join(", ")}, [N]one of the above, [S]kip: "
+      if files.length == 1
+        puts "Pick: [return] for default, [n]one of the above, [s]kip: "
+      else
+        puts "Pick: 1-#{files.length}, [n]one of the above, [s]kip: "
+      end
+
       value = STDIN.getch
       case value
       when '1','2','3','4','5'
-        i = value.to_i
-        puts "---> #{files[i]}"
-        return files[i]
+        value.to_i
       when "\r", "\n"
-        puts "---> #{files.first}"
-        return files.first
+        1
       when "n", "N"
-        # allow manual selection
+        log.debug "None of the above. Manual lookup."
+        nil
       else
         log.debug "None chosen. Skipping."
-        nil
-      end
+        0
+      end      
+    end
+
+    # allow user to manually enter new tv/movie name
+    def manual_lookup(query_type)
+      puts "Enter movie/tv name, eg: Star Wars"
+      video_name = STDIN.gets.chomp
+      return [] if video_name.blank?
+      MediaRenamer::TMDB.method(query_type).call(video_name)
     end
 
     def confirmation(msg, options)
