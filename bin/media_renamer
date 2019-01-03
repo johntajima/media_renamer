@@ -39,9 +39,6 @@ class MediaRenamerCLI < Thor
                 default: false,
                 desc: "TV shows - video files TV shows"
 
-
-
-
   def rename(file)
     params = process_args(file, options)
     files = params.delete(:files)
@@ -70,6 +67,21 @@ class MediaRenamerCLI < Thor
         MediaRenamer::Utils.delete_file(file, params.merge(confirmation_required: false))
       end
     end    
+  end
+
+  desc "strip_paths <path>", "removes the [year] part of the dir name"
+  def strip_paths(path)
+    files = Dir.glob(File.join(escape_glob(path), "*")).sort.reverse
+    files.each do |file|
+      new_file = file.gsub(/\s\[\d{3,4}.\]/,'')
+      if new_file == file
+        puts "Already properly named...skipping #{file}"
+        next
+      else
+        FileUtils.mv file, new_file
+        puts "Renamed #{file} => #{new_file}"
+      end
+    end
   end
 
 
