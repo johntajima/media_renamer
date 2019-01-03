@@ -5,7 +5,7 @@ MOVIE_TEMPLATE: "\
 {% elsif video_codec == 'HEVC'%}Movies_HEVC/\
 {% else %}Movies/\
 {%endif%}\
-{{title}} ({{year}}) {% if tag %}{{tags}} {% endif %}[{{video_format}}]/\
+{{title}} ({{year}}){% if tag %} {{tags}}{% endif %}/\
 {{title}} ({{year}}) {% if tag %}{{tags}} {% endif %}[{{video_format}}] \
 {% if video_codec == 'HEVC' %}[HEVC] {%endif%}\
 [{{audio_codec}}].{{ext}}"
