@@ -47,6 +47,17 @@ Or install it yourself as:
 --preview will not do anything, just print out what action would take place
 
 
+    Movies:
+    ./bin/media_renamer rename /Volumes/Media/downloads -p /Volumes/Media -t /Volumes/Media -D -f
+
+    TV:
+    ./bin/media_renamer rename /Volumes/Media2/tv_downloads -p /Volumes/Media2  -D -f --tv
+
+    HQ Movies
+    ./bin/media_renamer rename /Volumes/Media2/hq_downloads -p /Volumes/Media2/ -D -f
+
+
+
 ## config file
     ~/.media_rename.yml
 
